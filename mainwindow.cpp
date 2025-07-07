@@ -96,10 +96,15 @@ void MainWindow::on_pushButton_parenClosed_clicked()
     ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
 }
 
-
 void MainWindow::on_pushButton_enter_clicked()
 {
     mainCalculator.executeCalculation();
+    ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
+}
+
+void MainWindow::on_pushButton_backspace_clicked()
+{
+    mainCalculator.eraseLastInput();
     ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
 }
 

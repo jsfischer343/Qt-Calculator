@@ -51,6 +51,38 @@ void Calculator::inputParenthesis(bool parenthesis)
         sprintf(screenOutput, "%s)", screenOutput);
     }
 }
+void Calculator::eraseLastInput()
+{
+    //if digit buffer is non-empty then remove last number
+    if(digitBuffer_L!=0)
+    {
+        digitBuffer_L--;
+        digitBuffer[digitBuffer_L] = 0;
+        //get length of screenOutput
+        int i=0;
+        while(screenOutput[i]!='\0')
+        {
+            i++;
+        }
+        //knock off last character
+        i--;
+        screenOutput[i] = '\0';
+    }
+    //otherwise knock off last term in term object
+    else
+    {
+        mainInput.pop();
+        //get length of screenOutput
+        int i=0;
+        while(screenOutput[i]!='\0')
+        {
+            i++;
+        }
+        //knock off last character
+        i--;
+        screenOutput[i] = '\0';
+    }
+}
 void Calculator::pushAndFlushDigitBuffer()
 {
     if(digitBuffer_L==0)
@@ -188,7 +220,6 @@ double Calculator::executeCalculation_calculate(Term& term)
     }
     return term.at(0);
 }
-
 char* Calculator::getScreenOutput()
 {
     return screenOutput;

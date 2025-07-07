@@ -53,6 +53,8 @@ private slots:
 
     void on_pushButton_enter_clicked();
 
+    void on_pushButton_backspace_clicked();
+
 private:
     Ui::MainWindow *ui;
     Calculator mainCalculator = Calculator();

@@ -19,6 +19,7 @@ public:
     void inputDigit(double digit);
     void inputOperator(char operation);
     void inputParenthesis(bool parenthesis);
+    void eraseLastInput();
     void executeCalculation();
     void pushAndFlushDigitBuffer();
 private:
