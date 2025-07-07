@@ -8,7 +8,7 @@ Term::Term()
 Term::Term(Term& parentTermObj, int subsection_start, int subsection_end)
 {
     termArr_L = subsection_end-subsection_start+1;
-    termArr = new int[termArr_L];
+    termArr = new double[termArr_L];
     termArr_flags = new int8_t[termArr_L];
 
     //Copy subsection
@@ -25,7 +25,7 @@ Term::~Term()
     delete[] termArr_flags;
 }
 
-int Term::at(int index)
+double Term::at(int index)
 {
     if(index>=termArr_L || index<0)
     {
@@ -111,11 +111,11 @@ bool Term::isClosedParenthesis(int index)
         return false;
     }
 }
-void Term::push(int term, int8_t term_flags)
+void Term::push(double term, int8_t term_flags)
 {
     if(termArr_L==0)
     {
-        termArr = new int[1];
+        termArr = new double[1];
         termArr_flags = new int8_t[1];
         termArr_L++;
         termArr[0] = term;
@@ -124,8 +124,8 @@ void Term::push(int term, int8_t term_flags)
     else
     {
         //Setup temporary pointers
-        int* new_termArr = new int[termArr_L+1];
-        int* old_termArr = termArr;
+        double* new_termArr = new double[termArr_L+1];
+        double* old_termArr = termArr;
         int8_t* new_termArr_flags = new int8_t[termArr_L+1];
         int8_t* old_termArr_flags = termArr_flags;
 
@@ -152,9 +152,9 @@ void Term::push(int term, int8_t term_flags)
         termArr_L++;
     }
 }
-int Term::pop()
+double Term::pop()
 {
-    int poppedValue = -1;
+    double poppedValue = -1;
     if(termArr_L==0)
     {
         return poppedValue;
@@ -162,8 +162,8 @@ int Term::pop()
     else
     {
         //Setup temporary pointers
-        int* new_termArr = new int[termArr_L-1];
-        int* old_termArr = termArr;
+        double* new_termArr = new double[termArr_L-1];
+        double* old_termArr = termArr;
         int8_t* new_termArr_flags = new int8_t[termArr_L-1];
         int8_t* old_termArr_flags = termArr_flags;
 
@@ -190,7 +190,7 @@ int Term::pop()
     }
     return poppedValue;
 }
-void Term::set(int term, int8_t term_flags, int index)
+void Term::set(double term, int8_t term_flags, int index)
 {
     if(index>=termArr_L || index<0)
     {
@@ -202,13 +202,13 @@ void Term::set(int term, int8_t term_flags, int index)
         termArr_flags[index] = term_flags;
     }
 }
-void Term::condenseSubsectionToSingleValue(int subsection_start, int subsection_end, int value)
+void Term::condenseSubsectionToSingleValue(int subsection_start, int subsection_end, double value)
 {
     int new_size = termArr_L-(subsection_end-subsection_start);
 
     //Setup temporary pointers
-    int* new_termArr = new int[new_size];
-    int* old_termArr = termArr;
+    double* new_termArr = new double[new_size];
+    double* old_termArr = termArr;
     int8_t* new_termArr_flags = new int8_t[new_size];
     int8_t* old_termArr_flags = termArr_flags;
 

@@ -9,21 +9,21 @@ class Calculator
 private:
     char* screenOutput;
     Term mainInput;
-    int finalValue;
+    double finalValue;
     int digitBuffer_L;
-    int* digitBuffer;
+    double* digitBuffer;
 public:
     Calculator();
     ~Calculator();
     char* getScreenOutput();
-    void inputDigit(int digit);
+    void inputDigit(double digit);
     void inputOperator(char operation);
     void inputParenthesis(bool parenthesis);
     void executeCalculation();
     void pushAndFlushDigitBuffer();
 private:
-    int executeCalculation_recursive(Term& parentTerm, int start, int end);
-    int executeCalculation_calculate(Term& term);
+    double executeCalculation_recursive(Term& parentTerm, int start, int end);
+    double executeCalculation_calculate(Term& term);
 };
 
 #endif // CALCULATOR_H

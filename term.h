@@ -7,7 +7,7 @@ class Term
 {
 private:
     int termArr_L;
-    int* termArr;
+    double* termArr;
     int8_t* termArr_flags;
     /* Flags Breakdown (16 bits)
          * [0-1]   00->Number   01->Operation  10->Parenthesis  11->Unused
@@ -23,17 +23,17 @@ public:
     Term();
     Term(Term& parentTermObj, int subsection_start, int subsection_end);
     ~Term();
-    int at(int index);
+    double at(int index);
     int8_t at_flags(int index);
     int size();
     bool isNumber(int index);
     bool isOperation(int index);
     bool isOpenParenthesis(int index);
     bool isClosedParenthesis(int index);
-    void push(int term, int8_t term_flags);
-    int pop();
-    void set(int term, int8_t term_flags, int index);
-    void condenseSubsectionToSingleValue(int subsection_start, int subsection_end, int value);
+    void push(double term, int8_t term_flags);
+    double pop();
+    void set(double term, int8_t term_flags, int index);
+    void condenseSubsectionToSingleValue(int subsection_start, int subsection_end, double value);
     void clear();
 };
 

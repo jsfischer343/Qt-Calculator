@@ -9,7 +9,7 @@ Calculator::Calculator()
     }
     finalValue = 0;
     digitBuffer_L = 0;
-    digitBuffer = new int[100];
+    digitBuffer = new double[100];
 }
 Calculator::~Calculator()
 {
@@ -17,7 +17,7 @@ Calculator::~Calculator()
     delete[] digitBuffer;
 }
 
-void Calculator::inputDigit(int digit)
+void Calculator::inputDigit(double digit)
 {
     if(digitBuffer_L<100)
     {
@@ -26,7 +26,7 @@ void Calculator::inputDigit(int digit)
     }
 
     //Add to screen output
-    sprintf(screenOutput, "%s%d", screenOutput,digit);
+    sprintf(screenOutput, "%s%g", screenOutput,digit);
 }
 void Calculator::inputOperator(char operation)
 {
@@ -34,7 +34,7 @@ void Calculator::inputOperator(char operation)
     {
         pushAndFlushDigitBuffer();
     }
-    mainInput.push((int)operation, 0b00000001);
+    mainInput.push((double)operation, 0b00000001);
 
     //Add to screen output
     sprintf(screenOutput, "%s%c", screenOutput,operation);
@@ -59,7 +59,7 @@ void Calculator::inputParenthesis(bool parenthesis)
 }
 void Calculator::pushAndFlushDigitBuffer()
 {
-    int pushedVal = 0;
+    double pushedVal = 0;
     for(int i=0;i<digitBuffer_L;i++)
     {
         pushedVal = pushedVal+(digitBuffer[i]*pow(10,digitBuffer_L-i-1));
@@ -98,10 +98,10 @@ void Calculator::executeCalculation()
         }
     }
     finalValue = executeCalculation_calculate(mainInput);
-    sprintf(screenOutput, "%d", finalValue);
+    sprintf(screenOutput, "%g", finalValue);
 }
 //(7*3)+(6*4)
-int Calculator::executeCalculation_recursive(Term& parentTerm, int start, int end)
+double Calculator::executeCalculation_recursive(Term& parentTerm, int start, int end)
 {
     Term subTerm = Term(parentTerm, start, end);
     int subsection_start = -1;
@@ -134,7 +134,7 @@ int Calculator::executeCalculation_recursive(Term& parentTerm, int start, int en
     }
     return executeCalculation_calculate(subTerm);
 }
-int Calculator::executeCalculation_calculate(Term& term)
+double Calculator::executeCalculation_calculate(Term& term)
 {
     while(term.size()!=1)
     {
