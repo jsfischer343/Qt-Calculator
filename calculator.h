@@ -22,8 +22,8 @@ public:
     void executeCalculation();
     void pushAndFlushDigitBuffer();
 private:
-    int executeCalculation_recursive(Term parentTerm, int start, int end);
-    int executeCalculation_calculate(Term term);
+    int executeCalculation_recursive(Term& parentTerm, int start, int end);
+    int executeCalculation_calculate(Term& term);
 };
 
 #endif // CALCULATOR_H

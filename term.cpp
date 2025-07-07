@@ -223,8 +223,8 @@ void Term::condenseSubsectionToSingleValue(int subsection_start, int subsection_
     new_termArr_flags[subsection_start] = 0b00000000;
     for(int i=subsection_start+1;i<new_size;i++)
     {
-        new_termArr[i] = old_termArr[i+(subsection_end-subsection_start)-1];
-        new_termArr_flags[i] = old_termArr_flags[i+(subsection_end-subsection_start)-1];
+        new_termArr[i] = old_termArr[i+(subsection_end-subsection_start)];
+        new_termArr_flags[i] = old_termArr_flags[i+(subsection_end-subsection_start)];
     }
 
     //Assign global "termArr" and "termArr_flags" arrays to point to the newly created memory

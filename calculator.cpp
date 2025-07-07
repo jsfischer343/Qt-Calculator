@@ -99,11 +99,9 @@ void Calculator::executeCalculation()
     }
     finalValue = executeCalculation_calculate(mainInput);
     sprintf(screenOutput, "%d", finalValue);
-    mainInput.clear();
-    mainInput.push(finalValue, 0b00000000);
-
 }
-int Calculator::executeCalculation_recursive(Term parentTerm, int start, int end)
+//(7*3)+(6*4)
+int Calculator::executeCalculation_recursive(Term& parentTerm, int start, int end)
 {
     Term subTerm = Term(parentTerm, start, end);
     int subsection_start = -1;
@@ -136,7 +134,7 @@ int Calculator::executeCalculation_recursive(Term parentTerm, int start, int end
     }
     return executeCalculation_calculate(subTerm);
 }
-int Calculator::executeCalculation_calculate(Term term)
+int Calculator::executeCalculation_calculate(Term& term)
 {
     while(term.size()!=1)
     {
