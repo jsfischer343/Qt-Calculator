@@ -32,6 +32,7 @@ public:
     bool isClosedParenthesis(int index);
     void push(double term, int8_t term_flags);
     double pop();
+    double pop(int index);
     void set(double term, int8_t term_flags, int index);
     void condenseSubsectionToSingleValue(int subsection_start, int subsection_end, double value);
     void clear();

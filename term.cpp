@@ -190,6 +190,47 @@ double Term::pop()
     }
     return poppedValue;
 }
+double Term::pop(int index)
+{
+    double poppedValue = -1;
+    if(termArr_L==0)
+    {
+        return poppedValue;
+    }
+    else
+    {
+        //Setup temporary pointers
+        double* new_termArr = new double[termArr_L-1];
+        double* old_termArr = termArr;
+        int8_t* new_termArr_flags = new int8_t[termArr_L-1];
+        int8_t* old_termArr_flags = termArr_flags;
+
+        //Grab poppedValue
+        poppedValue = old_termArr[index];
+
+        //Copy values from old to new
+        for(int i=0;i<index;i++)
+        {
+            new_termArr[i] = old_termArr[i];
+            new_termArr_flags[i] = old_termArr_flags[i];
+        }
+        for(int i=index+1;i<termArr_L;i++)
+        {
+            new_termArr[i-1] = old_termArr[i];
+            new_termArr_flags[i-1] = old_termArr_flags[i];
+        }
+
+        //Assign global "termArr" and "termArr_flags" arrays to point to the newly created memory
+        termArr = new_termArr;
+        termArr_flags = new_termArr_flags;
+        termArr_L--;
+
+        //Free old memory
+        delete[] old_termArr;
+        delete[] old_termArr_flags;
+    }
+    return poppedValue;
+}
 void Term::set(double term, int8_t term_flags, int index)
 {
     if(index>=termArr_L || index<0)

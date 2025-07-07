@@ -30,10 +30,7 @@ void Calculator::inputDigit(double digit)
 }
 void Calculator::inputOperator(char operation)
 {
-    if(digitBuffer_L!=0)
-    {
-        pushAndFlushDigitBuffer();
-    }
+    pushAndFlushDigitBuffer();
     mainInput.push((double)operation, 0b00000001);
 
     //Add to screen output
@@ -41,10 +38,7 @@ void Calculator::inputOperator(char operation)
 }
 void Calculator::inputParenthesis(bool parenthesis)
 {
-    if(digitBuffer_L!=0)
-    {
-        pushAndFlushDigitBuffer();
-    }
+    pushAndFlushDigitBuffer();
     mainInput.push(parenthesis, 0b00000010);
 
     //Add to screen output
@@ -59,6 +53,10 @@ void Calculator::inputParenthesis(bool parenthesis)
 }
 void Calculator::pushAndFlushDigitBuffer()
 {
+    if(digitBuffer_L==0)
+    {
+        return;
+    }
     double pushedVal = 0;
     for(int i=0;i<digitBuffer_L;i++)
     {
@@ -69,6 +67,7 @@ void Calculator::pushAndFlushDigitBuffer()
 }
 void Calculator::executeCalculation()
 {
+    this->pushAndFlushDigitBuffer();
     int subsection_start = -1;
     int subsection_end = -1;
     int parenthesisStack = 0;
@@ -93,6 +92,7 @@ void Calculator::executeCalculation()
         if(subsection_start!=-1 && subsection_end!=-1)
         {
             mainInput.condenseSubsectionToSingleValue(subsection_start, subsection_end, executeCalculation_recursive(mainInput, subsection_start, subsection_end));
+            i=subsection_start;
             subsection_start=-1;
             subsection_end=-1;
         }
@@ -103,10 +103,14 @@ void Calculator::executeCalculation()
 //(7*3)+(6*4)
 double Calculator::executeCalculation_recursive(Term& parentTerm, int start, int end)
 {
+    start = start+1;
+    end = end-1;
     Term subTerm = Term(parentTerm, start, end);
+
     int subsection_start = -1;
     int subsection_end = -1;
     int parenthesisStack = 0;
+
     for(int i=0;i<subTerm.size();i++)
     {
         if(subTerm.isOpenParenthesis(i))
@@ -128,6 +132,7 @@ double Calculator::executeCalculation_recursive(Term& parentTerm, int start, int
         if(subsection_start!=-1 && subsection_end!=-1)
         {
             subTerm.condenseSubsectionToSingleValue(subsection_start, subsection_end, executeCalculation_recursive(subTerm, subsection_start, subsection_end));
+            i=subsection_start;
             subsection_start=-1;
             subsection_end=-1;
         }

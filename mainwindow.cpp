@@ -99,7 +99,6 @@ void MainWindow::on_pushButton_parenClosed_clicked()
 
 void MainWindow::on_pushButton_enter_clicked()
 {
-    mainCalculator.pushAndFlushDigitBuffer();
     mainCalculator.executeCalculation();
     ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
 }
