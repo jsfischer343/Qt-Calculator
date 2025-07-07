@@ -100,7 +100,6 @@ void Calculator::executeCalculation()
     finalValue = executeCalculation_calculate(mainInput);
     sprintf(screenOutput, "%g", finalValue);
 }
-//(7*3)+(6*4)
 double Calculator::executeCalculation_recursive(Term& parentTerm, int start, int end)
 {
     start = start+1;
