@@ -62,6 +62,8 @@ private slots:
 
     void on_pushButton_backspace_clicked();
 
+    void on_pushButton_decimalPoint_clicked();
+
 private:
     void popUp_InvalidSyntax();
 

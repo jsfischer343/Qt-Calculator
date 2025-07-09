@@ -3,13 +3,13 @@
 Calculator::Calculator()
 {
     screenOutput = new char[100];
+    digitBuffer_L = 0;
+    digitBuffer = new char[100];
     for(int i=0;i<100;i++)
     {
         screenOutput[i]='\0';
+        digitBuffer[i]='\0';
     }
-    finalValue = 0;
-    digitBuffer_L = 0;
-    digitBuffer = new double[100];
 }
 Calculator::~Calculator()
 {
@@ -23,7 +23,7 @@ char* Calculator::getScreenOutput()
     return screenOutput;
 }
 
-void Calculator::inputDigit(double digit)
+void Calculator::inputDigit(char digit)
 {
     if(digitBuffer_L<100)
     {
@@ -32,7 +32,7 @@ void Calculator::inputDigit(double digit)
     }
 
     //Add to screen output
-    sprintf(screenOutput, "%s%g", screenOutput,digit);
+    sprintf(screenOutput, "%s%c", screenOutput,digit);
 }
 void Calculator::inputOperator(char operation)
 {
@@ -63,7 +63,7 @@ void Calculator::eraseLastInput()
     if(digitBuffer_L!=0)
     {
         digitBuffer_L--;
-        digitBuffer[digitBuffer_L] = 0;
+        digitBuffer[digitBuffer_L] = '\0';
         //get length of screenOutput
         int i=0;
         while(screenOutput[i]!='\0')
@@ -124,7 +124,7 @@ bool Calculator::executeCalculation()
             subsection_end=-1;
         }
     }
-    finalValue = executeCalculation_calculate(mainInput);
+    double finalValue = executeCalculation_calculate(mainInput);
     sprintf(screenOutput, "%g", finalValue);
     return true;
 }
@@ -223,13 +223,18 @@ void Calculator::pushAndFlushDigitBuffer()
     {
         return;
     }
-    double pushedVal = 0;
+
+    //Convert buffer to double and push to mainInput
+    char* end = NULL;
+    double valueToBePushed = strtod(digitBuffer, &end);
+    mainInput.push(valueToBePushed, 0b00000000);
+
+    //Flush buffer
     for(int i=0;i<digitBuffer_L;i++)
     {
-        pushedVal = pushedVal+(digitBuffer[i]*pow(10,digitBuffer_L-i-1));
+        digitBuffer[i]='\0';
     }
-    digitBuffer_L=0;
-    mainInput.push(pushedVal, 0b00000000);
+    digitBuffer_L = 0;
 }
 
 bool Calculator::validSyntax()

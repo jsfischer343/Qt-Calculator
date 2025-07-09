@@ -2,6 +2,8 @@
 #define CALCULATOR_H
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
+#include <cerrno>
 #include "term.h"
 
 class Calculator
@@ -9,15 +11,15 @@ class Calculator
 private:
     char* screenOutput;
     Term mainInput;
-    double finalValue;
     int digitBuffer_L;
-    double* digitBuffer;
+    char* digitBuffer;
 public:
     Calculator();
     ~Calculator();
+    //Get
     char* getScreenOutput();
     //Input
-    void inputDigit(double digit);
+    void inputDigit(char digit);
     void inputOperator(char operation);
     void inputParenthesis(bool parenthesis);
     //Erase
@@ -29,8 +31,8 @@ private:
     double executeCalculation_recursive(Term& parentTerm, int start, int end);
     double executeCalculation_calculate(Term& term);
 
+    //Digit Buffer
     void pushAndFlushDigitBuffer();
-    bool fillDigitBuffer();
     //Validation
     bool validSyntax();
 };
