@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QKeyEvent>
+#include <QMessageBox>
 #include "calculator.h"
 
 QT_BEGIN_NAMESPACE
@@ -62,6 +63,8 @@ private slots:
     void on_pushButton_backspace_clicked();
 
 private:
+    void popUp_InvalidSyntax();
+
     Ui::MainWindow *ui;
     Calculator mainCalculator = Calculator();
 };

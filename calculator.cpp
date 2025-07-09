@@ -17,6 +17,12 @@ Calculator::~Calculator()
     delete[] digitBuffer;
 }
 
+
+char* Calculator::getScreenOutput()
+{
+    return screenOutput;
+}
+
 void Calculator::inputDigit(double digit)
 {
     if(digitBuffer_L<100)
@@ -78,27 +84,16 @@ void Calculator::eraseLastInput()
         {
             i++;
         }
-        //knock off last character
         i--;
         screenOutput[i] = '\0';
     }
 }
-void Calculator::pushAndFlushDigitBuffer()
+bool Calculator::executeCalculation()
 {
-    if(digitBuffer_L==0)
+    if(this->validSyntax()==false)
     {
-        return;
+        return false;
     }
-    double pushedVal = 0;
-    for(int i=0;i<digitBuffer_L;i++)
-    {
-        pushedVal = pushedVal+(digitBuffer[i]*pow(10,digitBuffer_L-i-1));
-    }
-    digitBuffer_L=0;
-    mainInput.push(pushedVal, 0b00000000);
-}
-void Calculator::executeCalculation()
-{
     this->pushAndFlushDigitBuffer();
     int subsection_start = -1;
     int subsection_end = -1;
@@ -131,6 +126,7 @@ void Calculator::executeCalculation()
     }
     finalValue = executeCalculation_calculate(mainInput);
     sprintf(screenOutput, "%g", finalValue);
+    return true;
 }
 double Calculator::executeCalculation_recursive(Term& parentTerm, int start, int end)
 {
@@ -220,7 +216,59 @@ double Calculator::executeCalculation_calculate(Term& term)
     }
     return term.at(0);
 }
-char* Calculator::getScreenOutput()
+
+void Calculator::pushAndFlushDigitBuffer()
 {
-    return screenOutput;
+    if(digitBuffer_L==0)
+    {
+        return;
+    }
+    double pushedVal = 0;
+    for(int i=0;i<digitBuffer_L;i++)
+    {
+        pushedVal = pushedVal+(digitBuffer[i]*pow(10,digitBuffer_L-i-1));
+    }
+    digitBuffer_L=0;
+    mainInput.push(pushedVal, 0b00000000);
+}
+
+bool Calculator::validSyntax()
+{
+    //check start and end are not operators
+    if(mainInput.isOperation(0) || (mainInput.isOperation(mainInput.size()-1) && digitBuffer_L==0))
+    {
+        return false;
+    }
+    //check for bad parethesis, multiple adjacent operators
+    int parenthesisStack = 0;
+    bool prevIsOperator = 0;
+    for(int i=0;i<mainInput.size();i++)
+    {
+        if(mainInput.isOpenParenthesis(i))
+        {
+            parenthesisStack++;
+        }
+        else if(mainInput.isClosedParenthesis(i))
+        {
+            parenthesisStack--;
+        }
+        if(parenthesisStack<0)
+        {
+            return false;
+        }
+
+        if(mainInput.isOperation(i) && prevIsOperator)
+        {
+            return false;
+        }
+        else if(mainInput.isOperation(i))
+        {
+            prevIsOperator = 1;
+        }
+        else
+        {
+            prevIsOperator = 0;
+        }
+    }
+    return true;
 }

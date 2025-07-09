@@ -109,11 +109,6 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         mainCalculator.inputOperator('/');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
-    else if(event->key()==Qt::Key_Return)
-    {
-        mainCalculator.executeCalculation();
-        ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
-    }
     else
     {
         //QMainWindow::keyPressEvent(event);
@@ -211,8 +206,14 @@ void MainWindow::on_pushButton_parenClosed_clicked()
 
 void MainWindow::on_pushButton_enter_clicked()
 {
-    mainCalculator.executeCalculation();
-    ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
+    if(mainCalculator.executeCalculation())
+    {
+        ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
+    }
+    else
+    {
+        popUp_InvalidSyntax();
+    }
 }
 
 void MainWindow::on_pushButton_backspace_clicked()
@@ -221,3 +222,10 @@ void MainWindow::on_pushButton_backspace_clicked()
     ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
 }
 
+void MainWindow::popUp_InvalidSyntax()
+{
+    QMessageBox notifyBox;
+    notifyBox.setWindowTitle("Error");
+    notifyBox.setText("Invalid equation syntax.");
+    notifyBox.exec();
+}
