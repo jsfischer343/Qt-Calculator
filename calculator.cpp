@@ -77,15 +77,29 @@ void Calculator::eraseLastInput()
     //otherwise knock off last term in term object
     else
     {
-        mainInput.pop();
+        int bufferKnockOffSize = 1;
+        //if number then entire length of number needs to be deleted
+        if(mainInput.isNumber(mainInput.size()-1))
+        {
+            std::string numberAsString = std::to_string(mainInput.pop());
+            bufferKnockOffSize = numberAsString.size();
+        }
+        //else just remove one character since operators and parenthesis are only 1 char long
+        else
+        {
+            mainInput.pop();
+        }
         //get length of screenOutput
         int i=0;
         while(screenOutput[i]!='\0')
         {
             i++;
         }
-        i--;
-        screenOutput[i] = '\0';
+        for(int j=0;j<bufferKnockOffSize;j++)
+        {
+            i--;
+            screenOutput[i] = '\0';
+        }
     }
 }
 bool Calculator::executeCalculation()
