@@ -15,7 +15,7 @@ private:
          * [3]   Unused
          * [4]   Unused
          * [5]   Unused
-         * [6]   Unused
+         * [6]   0->No Error   1->Error
          * [7]   Unused
      */
 
@@ -30,6 +30,7 @@ public:
     bool isOperation(int index);
     bool isOpenParenthesis(int index);
     bool isClosedParenthesis(int index);
+    bool isError(int index);
     void push(double term, int8_t term_flags);
     double pop();
     double pop(int index);

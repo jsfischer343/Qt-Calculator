@@ -19,7 +19,7 @@ public:
     //Get
     char* getScreenOutput();
     //Input
-    void inputDigit(char digit);
+    void inputDigitOrDecimal(char digit);
     void inputOperator(char operation);
     void inputParenthesis(bool parenthesis);
     //Erase

@@ -59,7 +59,7 @@ bool Term::isNumber(int index)
     }
     else
     {
-        if(termArr_flags[index]==0b00000000)
+        if((termArr_flags[index]&0b00000011)==0b00000000)
         {
             return true;
         }
@@ -74,7 +74,7 @@ bool Term::isOperation(int index)
     }
     else
     {
-        if(termArr_flags[index]==0b00000001)
+        if((termArr_flags[index]&0b00000011)==0b00000001)
         {
             return true;
         }
@@ -89,7 +89,7 @@ bool Term::isOpenParenthesis(int index)
     }
     else
     {
-        if(termArr[index]==1 && termArr_flags[index]==0b00000010)
+        if(termArr[index]==1 && (termArr_flags[index]&0b00000011)==0b00000010)
         {
             return true;
         }
@@ -104,7 +104,22 @@ bool Term::isClosedParenthesis(int index)
     }
     else
     {
-        if(termArr[index]==0 && termArr_flags[index]==0b00000010)
+        if(termArr[index]==0 && (termArr_flags[index]&0b00000011)==0b00000010)
+        {
+            return true;
+        }
+        return false;
+    }
+}
+bool Term::isError(int index)
+{
+    if(index>=termArr_L)
+    {
+        return false;
+    }
+    else
+    {
+        if((termArr_flags[index]&0b01000000)==0b01000000)
         {
             return true;
         }

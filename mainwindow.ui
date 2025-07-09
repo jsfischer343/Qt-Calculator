@@ -403,6 +403,27 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_backspace</tabstop>
+  <tabstop>pushButton_parenOpen</tabstop>
+  <tabstop>pushButton_parenClosed</tabstop>
+  <tabstop>pushButton_operatorDiv</tabstop>
+  <tabstop>pushButton_operatorMul</tabstop>
+  <tabstop>pushButton_operatorSub</tabstop>
+  <tabstop>pushButton_operatorPlus</tabstop>
+  <tabstop>pushButton_decimalPoint</tabstop>
+  <tabstop>pushButton_num7</tabstop>
+  <tabstop>pushButton_num8</tabstop>
+  <tabstop>pushButton_num9</tabstop>
+  <tabstop>pushButton_num4</tabstop>
+  <tabstop>pushButton_num5</tabstop>
+  <tabstop>pushButton_num6</tabstop>
+  <tabstop>pushButton_num1</tabstop>
+  <tabstop>pushButton_num2</tabstop>
+  <tabstop>pushButton_num3</tabstop>
+  <tabstop>pushButton_num0</tabstop>
+  <tabstop>pushButton_enter</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

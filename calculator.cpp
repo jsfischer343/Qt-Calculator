@@ -2,10 +2,10 @@
 
 Calculator::Calculator()
 {
-    screenOutput = new char[100];
+    screenOutput = new char[50];
     digitBuffer_L = 0;
-    digitBuffer = new char[100];
-    for(int i=0;i<100;i++)
+    digitBuffer = new char[50];
+    for(int i=0;i<50;i++)
     {
         screenOutput[i]='\0';
         digitBuffer[i]='\0';
@@ -23,9 +23,9 @@ char* Calculator::getScreenOutput()
     return screenOutput;
 }
 
-void Calculator::inputDigit(char digit)
+void Calculator::inputDigitOrDecimal(char digit)
 {
-    if(digitBuffer_L<100)
+    if(digitBuffer_L<50)
     {
         digitBuffer[digitBuffer_L] = digit;
         digitBuffer_L++;
@@ -77,28 +77,44 @@ void Calculator::eraseLastInput()
     //otherwise knock off last term in term object
     else
     {
-        int bufferKnockOffSize = 1;
+        int bufferKnockOffSize = 0;
         //if number then entire length of number needs to be deleted
         if(mainInput.isNumber(mainInput.size()-1))
         {
-            std::string numberAsString = std::to_string(mainInput.pop());
-            bufferKnockOffSize = numberAsString.size();
+            bufferKnockOffSize = 0;
+            double poppedNumber = mainInput.pop();
+            char* tempString = new char[50];
+            for(int i=0;i<50;i++)
+            {
+                tempString[i]='\0';
+            }
+            sprintf(tempString,"%g",poppedNumber);
+
+            for(int i=0;i<50;i++)
+            {
+                if(tempString[i]=='\0')
+                {
+                    break;
+                }
+                bufferKnockOffSize++;
+            }
+            delete[] tempString;
         }
         //else just remove one character since operators and parenthesis are only 1 char long
         else
         {
+            bufferKnockOffSize = 1;
             mainInput.pop();
         }
         //get length of screenOutput
-        int i=0;
-        while(screenOutput[i]!='\0')
+        int screenOutput_L=0;
+        while(screenOutput[screenOutput_L]!='\0')
         {
-            i++;
+            screenOutput_L++;
         }
-        for(int j=0;j<bufferKnockOffSize;j++)
+        for(int i=0;i<bufferKnockOffSize && (screenOutput_L-1-i)>=0;i++)
         {
-            i--;
-            screenOutput[i] = '\0';
+            screenOutput[screenOutput_L-1-i] = '\0';
         }
     }
 }
@@ -238,10 +254,31 @@ void Calculator::pushAndFlushDigitBuffer()
         return;
     }
 
-    //Convert buffer to double and push to mainInput
-    char* end = NULL;
-    double valueToBePushed = strtod(digitBuffer, &end);
-    mainInput.push(valueToBePushed, 0b00000000);
+    //check for validity of buffer syntax
+    int decimalPointCount = 0;
+    int digitCount = 0;
+    for(int i=0;i<digitBuffer_L;i++)
+    {
+        if(digitBuffer[i]!='.')
+        {
+            digitCount++;
+        }
+        else
+        {
+            decimalPointCount++;
+        }
+    }
+    if(digitCount==0||decimalPointCount>1)
+    {
+        mainInput.push(1, 0b01000000); //push an 'error' term (signals to validSyntax function that syntax is invalid)
+    }
+    else
+    {
+        //Convert buffer to double and push to mainInput
+        char* end = NULL;
+        double valueToBePushed = strtod(digitBuffer, &end);
+        mainInput.push(valueToBePushed, 0b00000000);
+    }
 
     //Flush buffer
     for(int i=0;i<digitBuffer_L;i++)
@@ -258,7 +295,7 @@ bool Calculator::validSyntax()
     {
         return false;
     }
-    //check for bad parethesis, multiple adjacent operators
+    //check for bad parethesis, multiple adjacent operators, or error flags
     int parenthesisStack = 0;
     bool prevIsOperator = 0;
     for(int i=0;i<mainInput.size();i++)
@@ -287,6 +324,11 @@ bool Calculator::validSyntax()
         else
         {
             prevIsOperator = 0;
+        }
+
+        if(mainInput.isError(i))
+        {
+            return false;
         }
     }
     return true;
