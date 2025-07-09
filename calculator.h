@@ -24,6 +24,7 @@ public:
     void inputParenthesis(bool parenthesis);
     //Erase
     void eraseLastInput();
+    void clearAll();
     //Excution
     bool executeCalculation();
 

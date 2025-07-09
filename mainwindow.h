@@ -54,6 +54,10 @@ private slots:
 
     void on_pushButton_operatorDiv_clicked();
 
+    void on_pushButton_operatorExp_clicked();
+
+    void on_pushButton_decimalPoint_clicked();
+
     void on_pushButton_parenOpen_clicked();
 
     void on_pushButton_parenClosed_clicked();
@@ -62,7 +66,7 @@ private slots:
 
     void on_pushButton_backspace_clicked();
 
-    void on_pushButton_decimalPoint_clicked();
+    void on_pushButton_clr_clicked();
 
 private:
     void popUp_InvalidSyntax();

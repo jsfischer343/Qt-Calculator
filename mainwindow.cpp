@@ -26,52 +26,52 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     }
     else if(event->key()==Qt::Key_0)
     {
-        mainCalculator.inputDigitOrDecimal(0);
+        mainCalculator.inputDigitOrDecimal('0');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_1)
     {
-        mainCalculator.inputDigitOrDecimal(1);
+        mainCalculator.inputDigitOrDecimal('1');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_2)
     {
-        mainCalculator.inputDigitOrDecimal(2);
+        mainCalculator.inputDigitOrDecimal('2');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_3)
     {
-        mainCalculator.inputDigitOrDecimal(3);
+        mainCalculator.inputDigitOrDecimal('3');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_4)
     {
-        mainCalculator.inputDigitOrDecimal(4);
+        mainCalculator.inputDigitOrDecimal('4');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_5)
     {
-        mainCalculator.inputDigitOrDecimal(5);
+        mainCalculator.inputDigitOrDecimal('5');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_6)
     {
-        mainCalculator.inputDigitOrDecimal(6);
+        mainCalculator.inputDigitOrDecimal('6');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_7)
     {
-        mainCalculator.inputDigitOrDecimal(7);
+        mainCalculator.inputDigitOrDecimal('7');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_8)
     {
-        mainCalculator.inputDigitOrDecimal(8);
+        mainCalculator.inputDigitOrDecimal('8');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_9)
     {
-        mainCalculator.inputDigitOrDecimal(9);
+        mainCalculator.inputDigitOrDecimal('9');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_ParenLeft)
@@ -82,11 +82,6 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     else if(event->key()==Qt::Key_ParenRight)
     {
         mainCalculator.inputParenthesis(0);
-        ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
-    }
-    else if(event->key()==Qt::Key_Plus)
-    {
-        mainCalculator.inputOperator('+');
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
     }
     else if(event->key()==Qt::Key_Plus)
@@ -111,13 +106,13 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     }
     else
     {
-        //QMainWindow::keyPressEvent(event);
+        QMainWindow::keyPressEvent(event);
     }
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent* event)
 {
-    //QMainWindow::keyReleaseEvent(event);
+    QMainWindow::keyReleaseEvent(event);
 }
 
 
@@ -192,6 +187,12 @@ void MainWindow::on_pushButton_operatorDiv_clicked()
     mainCalculator.inputOperator('/');
     ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
 }
+void MainWindow::on_pushButton_operatorExp_clicked()
+{
+    mainCalculator.inputOperator('^');
+    ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
+}
+
 void MainWindow::on_pushButton_decimalPoint_clicked()
 {
     mainCalculator.inputDigitOrDecimal('.');
@@ -228,6 +229,12 @@ void MainWindow::on_pushButton_backspace_clicked()
     ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
 }
 
+void MainWindow::on_pushButton_clr_clicked()
+{
+    mainCalculator.clearAll();
+    ui->outputPanel->setText(QString::fromUtf8(mainCalculator.getScreenOutput()));
+}
+
 void MainWindow::popUp_InvalidSyntax()
 {
     QMessageBox notifyBox;
@@ -235,3 +242,4 @@ void MainWindow::popUp_InvalidSyntax()
     notifyBox.setText("Invalid equation syntax.");
     notifyBox.exec();
 }
+

@@ -118,6 +118,20 @@ void Calculator::eraseLastInput()
         }
     }
 }
+void Calculator::clearAll()
+{
+    mainInput.clear();
+    for(int i=0;i<50;i++)
+    {
+        screenOutput[i] = '\0';
+    }
+    for(int i=0;i<digitBuffer_L;i++)
+    {
+        digitBuffer[i] = '\0';
+    }
+    digitBuffer_L = 0;
+}
+
 bool Calculator::executeCalculation()
 {
     if(this->validSyntax()==false)
@@ -198,50 +212,92 @@ double Calculator::executeCalculation_recursive(Term& parentTerm, int start, int
 }
 double Calculator::executeCalculation_calculate(Term& term)
 {
+    //Done with respect to PEMDAS
     while(term.size()!=1)
     {
-        //Addition (next operation NOT more important according to PEMDAS)
-        if((char)term.at(1)=='+' && ((char)term.at(3)=='+' || (char)term.at(3)=='-' || term.at(3)==-1))
+        if((char)term.at(1)=='+')
         {
-            term.condenseSubsectionToSingleValue(0,2,term.at(0)+term.at(2));
+            if((char)term.at(3)=='*' || (char)term.at(3)=='/')
+            {
+                if((char)term.at(5)=='^')
+                {
+                    term.condenseSubsectionToSingleValue(4,6,pow(term.at(4),term.at(6)));
+                }
+                else
+                {
+                    if((char)term.at(3)=='*')
+                    {
+                        term.condenseSubsectionToSingleValue(2,4,term.at(2)*term.at(4));
+                    }
+                    else if((char)term.at(3)=='/')
+                    {
+                        term.condenseSubsectionToSingleValue(2,4,term.at(2)/term.at(4));
+                    }
+                }
+            }
+            else if((char)term.at(3)=='^')
+            {
+                term.condenseSubsectionToSingleValue(2,4,pow(term.at(2),term.at(4)));
+            }
+            else
+            {
+                term.condenseSubsectionToSingleValue(0,2,term.at(0)+term.at(2));
+            }
         }
-
-        //Subtraction (next operation NOT more important according to PEMDAS)
-        if((char)term.at(1)=='-' && ((char)term.at(3)=='+' || (char)term.at(3)=='-' || term.at(3)==-1))
+        else if((char)term.at(1)=='-')
         {
-            term.condenseSubsectionToSingleValue(0,2,term.at(0)-term.at(2));
+            if((char)term.at(3)=='*' || (char)term.at(3)=='/')
+            {
+                if((char)term.at(5)=='^')
+                {
+                    term.condenseSubsectionToSingleValue(4,6,pow(term.at(4),term.at(6)));
+                }
+                else
+                {
+                    if((char)term.at(3)=='*')
+                    {
+                        term.condenseSubsectionToSingleValue(2,4,term.at(2)*term.at(4));
+                    }
+                    else if((char)term.at(3)=='/')
+                    {
+                        term.condenseSubsectionToSingleValue(2,4,term.at(2)/term.at(4));
+                    }
+                }
+            }
+            else if((char)term.at(3)=='^')
+            {
+                term.condenseSubsectionToSingleValue(2,4,pow(term.at(2),term.at(4)));
+            }
+            else
+            {
+                term.condenseSubsectionToSingleValue(0,2,term.at(0)-term.at(2));
+            }
         }
-
-        //Multiplication (next operation NOT more important according to PEMDAS)
-        if((char)term.at(1)=='*')
+        else if((char)term.at(1)=='*')
         {
-            term.condenseSubsectionToSingleValue(0,2,term.at(0)*term.at(2));
+            if((char)term.at(3)=='^')
+            {
+                term.condenseSubsectionToSingleValue(2,4,pow(term.at(2),term.at(4)));
+            }
+            else
+            {
+                term.condenseSubsectionToSingleValue(0,2,term.at(0)*term.at(2));
+            }
         }
-
-        //Division (next operation NOT more important according to PEMDAS)
-        if((char)term.at(1)=='/')
+        else if((char)term.at(1)=='/')
         {
-            term.condenseSubsectionToSingleValue(0,2,term.at(0)/term.at(2));
+            if((char)term.at(3)=='^')
+            {
+                term.condenseSubsectionToSingleValue(2,4,pow(term.at(2),term.at(4)));
+            }
+            else
+            {
+                term.condenseSubsectionToSingleValue(0,2,term.at(0)/term.at(2));
+            }
         }
-
-        //Addition (next operation more important according to PEMDAS)
-        if((char)term.at(1)=='+' && (char)term.at(3)=='*')
+        else if((char)term.at(1)=='^')
         {
-            term.condenseSubsectionToSingleValue(2,4,term.at(2)*term.at(4));
-        }
-        else if((char)term.at(1)=='+' && (char)term.at(3)=='/')
-        {
-            term.condenseSubsectionToSingleValue(2,4,term.at(2)/term.at(4));
-        }
-
-        //Subtraction (next operation more important according to PEMDAS)
-        if((char)term.at(1)=='-' && (char)term.at(3)=='*')
-        {
-            term.condenseSubsectionToSingleValue(2,4,term.at(2)*term.at(4));
-        }
-        else if((char)term.at(1)=='-' && (char)term.at(3)=='/')
-        {
-            term.condenseSubsectionToSingleValue(2,4,term.at(2)/term.at(4));
+            term.condenseSubsectionToSingleValue(0,2,pow(term.at(0),term.at(2)));
         }
     }
     return term.at(0);
