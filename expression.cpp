@@ -1,3 +1,3 @@
 #include "expression.h"
 
-expression::expression() {}
+expression::Expression() {}

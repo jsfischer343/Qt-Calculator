@@ -1,10 +1,10 @@
 #ifndef EXPRESSION_H
 #define EXPRESSION_H
 
-class expression
+class Expression
 {
 public:
-    expression();
+    Expression();
 };
 
 #endif // EXPRESSION_H
