@@ -1,42 +1,53 @@
 #ifndef TERM_H
 #define TERM_H
 #include <bits/stdc++.h>
-#include <cstdint>
+#include <cmath>
+/* Class Description: A single number or function contained within an expression.
+*/
+//Predefined number of arguments for each function
+#define MODULUS_ARGNUM 2
+#define SIN_ARGNUM 1
+#define COS_ARGNUM 1
+#define TAN_ARGNUM 1
+
+
+enum FunctionEnum
+{
+    FunctionEnum_Modulus,
+    FunctionEnum_Sin,
+    FunctionEnum_Cos,
+    FunctionEnum_Tan
+};
 
 class Term
 {
 private:
-    int termArr_L;
-    double* termArr;
-    int8_t* termArr_flags;
-    /* Flags Breakdown (16 bits)
-         * [0-1]   00->Number   01->Operation  10->Parenthesis  11->Unused
-         * [2]   Unused
-         * [3]   Unused
-         * [4]   Unused
-         * [5]   Unused
-         * [6]   0->No Error   1->Error
-         * [7]   Unused
-     */
+    double value;
+    class Function
+    {
+    private:
+        int args_L;
+        double* args = NULL;
+        int functionType;
+        double result;
+    public:
+        Function(int functionType, double* args, int args_L);
+        ~Function();
+        double getResult();
+    private: //All functions below for use with constructor only
+        int getExpectedNumOfArgs(int functionType);
+        bool resolve(); //calculate the result value given the function and args, true->function calculation worked, false->error or invalid input
+        //Math Functions
+        void resolve_Modulus(); //double data type is used but only 'integers' are considered valid inputs
+        void resolve_Sin();
+        void resolve_Cos();
+        void resolve_Tan();
+    };
 
 public:
-    Term();
-    Term(Term& parentTermObj, int subsection_start, int subsection_end);
-    ~Term();
-    double at(int index);
-    int8_t at_flags(int index);
-    int size();
-    bool isNumber(int index);
-    bool isOperation(int index);
-    bool isOpenParenthesis(int index);
-    bool isClosedParenthesis(int index);
-    bool isError(int index);
-    void push(double term, int8_t term_flags);
-    double pop();
-    double pop(int index);
-    void set(double term, int8_t term_flags, int index);
-    void condenseSubsectionToSingleValue(int subsection_start, int subsection_end, double value);
-    void clear();
+    Term(double number);
+    Term(int functionType, double* args, int args_L);
+    void getValue();
 };
 
 #endif // TERM_H
