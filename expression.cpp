@@ -208,23 +208,23 @@ void Expression::resolve_mergeTerms(int index)
 Term Expression::resolve_mergeTerms_Calc(Term& term1, Operation& operation, Term& term2)
 {
     double tempResult = 1;
-    if(operation.getOperatioAsChar()=='+')
+    if(operation.getOperationAsChar()=='+')
     {
         tempResult = term1.getValue()+term2.getValue();
     }
-    else if(operation.getOperatioAsChar()=='-')
+    else if(operation.getOperationAsChar()=='-')
     {
         tempResult = term1.getValue()-term2.getValue();
     }
-    else if(operation.getOperatioAsChar()=='*')
+    else if(operation.getOperationAsChar()=='*')
     {
         tempResult = term1.getValue()*term2.getValue();
     }
-    else if(operation.getOperatioAsChar()=='/')
+    else if(operation.getOperationAsChar()=='/')
     {
         tempResult = term1.getValue()/term2.getValue();
     }
-    else if(operation.getOperatioAsChar()=='^')
+    else if(operation.getOperationAsChar()=='^')
     {
         tempResult = pow(term1.getValue(),term2.getValue());
     }
