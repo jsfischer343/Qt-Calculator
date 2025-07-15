@@ -1,3 +1,4 @@
 #include "expression.h"
 
-expression::Expression() {}
+Expression::Expression()
+{}

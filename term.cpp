@@ -1,7 +1,7 @@
 #include "term.h"
 
 
-Term::Function::Function(int functionType, double* args, int args_L)
+Term::FunctionHandler::FunctionHandler(int functionType, double* args, int args_L)
 {
     this->functionType = functionType;
     this->args_L = args_L;
@@ -13,7 +13,7 @@ Term::Function::Function(int functionType, double* args, int args_L)
     }
 }
 
-bool Term::Function::resolve()
+bool Term::FunctionHandler::resolve()
 {
     if(args_L==getExpectedNumOfArgs(functionType))
     {
@@ -36,12 +36,12 @@ bool Term::Function::resolve()
     }
     return false;
 }
-double Term::Function::getResult()
+double Term::FunctionHandler::getResult()
 {
     return result;
 }
 
-int Term::Function::getExpectedNumOfArgs(int functionType)
+int Term::FunctionHandler::getExpectedNumOfArgs(int functionType)
 {
     if(functionType==FunctionEnum_Modulus)
     {
@@ -61,19 +61,19 @@ int Term::Function::getExpectedNumOfArgs(int functionType)
     }
     return 0;
 }
-void Term::Function::resolve_Modulus()
+void Term::FunctionHandler::resolve_Modulus()
 {
     result = (int)args[0] % (int)args[1];
 }
-void Term::Function::resolve_Sin()
+void Term::FunctionHandler::resolve_Sin()
 {
     result = sin(args[0]);
 }
-void Term::Function::resolve_Cos()
+void Term::FunctionHandler::resolve_Cos()
 {
     result = cos(args[0]);
 }
-void Term::Function::resolve_Tan()
+void Term::FunctionHandler::resolve_Tan()
 {
     result = tan(args[0]);
 }
@@ -85,6 +85,23 @@ Term::Term(double number)
 }
 Term::Term(int functionType, double* args, int args_L)
 {
-    Function functionHandler = Function(functionType, args, args_L);
+    FunctionHandler functionHandler = FunctionHandler(functionType, args, args_L);
     this->value = functionHandler.getResult();
+}
+Term::Term(int functionType, Term* termArgs, int termArgs_L)
+{
+    int args_L = termArgs_L;
+    double* args = new double[args_L];
+    for(int i=0;i<termArgs_L;i++)
+    {
+        args[i] = termArgs[i].getValue();
+    }
+    FunctionHandler functionHandler = FunctionHandler(functionType, args, args_L);
+    this->value = functionHandler.getResult();
+    delete[] args;
+}
+
+double Term::getValue()
+{
+    return value;
 }

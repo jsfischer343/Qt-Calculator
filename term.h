@@ -23,7 +23,7 @@ class Term
 {
 private:
     double value;
-    class Function
+    class FunctionHandler
     {
     private:
         int args_L;
@@ -31,8 +31,8 @@ private:
         int functionType;
         double result;
     public:
-        Function(int functionType, double* args, int args_L);
-        ~Function();
+        FunctionHandler(int functionType, double* args, int args_L);
+        ~FunctionHandler();
         double getResult();
     private: //All functions below for use with constructor only
         int getExpectedNumOfArgs(int functionType);
@@ -47,7 +47,8 @@ private:
 public:
     Term(double number);
     Term(int functionType, double* args, int args_L);
-    void getValue();
+    Term(int functionType, Term* termArgs, int termArgs_L); //For embedding functions in functions
+    double getValue();
 };
 
 #endif // TERM_H
