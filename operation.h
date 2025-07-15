@@ -16,7 +16,7 @@ private:
 public:
     Operation();
     int getOperation();
-    char getOperatioAsChar();
+    char getOperationAsChar();
     bool isPEMDASGreater(Operation& otherOperation);
     bool isPEMDASEqual(Operation& otherOperation);
     bool isPEMDASLesser(Operation& otherOperation);

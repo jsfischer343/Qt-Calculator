@@ -8,7 +8,7 @@ int Operation::getOperation()
 {
     return operation;
 }
-char Operation::getOperatioAsChar()
+char Operation::getOperationAsChar()
 {
     return (char)operation;
 }

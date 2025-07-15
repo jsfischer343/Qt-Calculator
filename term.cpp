@@ -79,6 +79,8 @@ void Term::FunctionHandler::resolve_Tan()
 }
 
 
+Term::Term()
+{}
 Term::Term(double number)
 {
     this->value = number;
