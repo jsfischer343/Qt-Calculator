@@ -1,232 +1,287 @@
 #include "expression.h"
 
+Expression::ExpressionItem::ExpressionItem(Term* newTerm)
+{
+    this->termPtr = newTerm;
+    this->operation = '\0';
+    this->parenthesis = 0;
+}
+Expression::ExpressionItem::ExpressionItem(char newOpOrParenthesis)
+{
+    if(newOpOrParenthesis=='(' || newOpOrParenthesis==')')
+    {
+        this->termPtr = NULL;
+        this->operation = '\0';
+        this->parenthesis = newOpOrParenthesis;
+    }
+    else
+    {
+        this->termPtr = NULL;
+        this->operation = newOpOrParenthesis;
+        this->parenthesis = 0;
+    }
+}
+bool Expression::ExpressionItem::isTerm()
+{
+    if(termPtr!=NULL)
+    {
+        return true;
+    }
+    return false;
+}
+bool Expression::ExpressionItem::isOperation()
+{
+    if(operation!='\0')
+    {
+        return true;
+    }
+    return false;
+}
+bool Expression::ExpressionItem::isParenthesis()
+{
+    if(parenthesis=='(' || parenthesis==')')
+    {
+        return true;
+    }
+    return false;
+}
+Term* Expression::ExpressionItem::getTerm()
+{
+    return termPtr;
+}
+char Expression::ExpressionItem::getOperation()
+{
+    return operation;
+}
+int8_t Expression::ExpressionItem::getParenthesis()
+{
+    return parenthesis;
+}
+
 Expression::Expression()
 {
-    termArr_L = 0;
-    termArr = NULL;
-    opArr_L = 0;
-    opArr = NULL;
+    expressionItemArr_L = 0;
+    expressionItemArr = NULL;
+    resultCalculated = false;
     alternator = 0;
+    parenthesisStack = 0;
 }
 Expression::~Expression()
 {
-    if(termArr!=NULL)
+    if(expressionItemArr!=NULL)
     {
-        delete[] termArr;
-    }
-    if(opArr!=NULL)
-    {
-        delete[] opArr;
+        for(int i=0;i<expressionItemArr_L;i++)
+        {
+            delete expressionItemArr[i];
+        }
+        delete[] expressionItemArr;
     }
 }
 
-
-void Expression::pushTerm(Term nextTerm)
+bool Expression::pushTerm(Term* termPtr)
 {
     if(alternator==1)
     {
-        throw; //error: this push should have been a operation
+        return false; //error: an operation was expected but a term was given
     }
-    int newTermArr_L = termArr_L+1;
-    Term* newTermArr = new Term[newTermArr_L];
-    int oldTermArr_L = termArr_L;
-    Term* oldTermArr = termArr;
-
-    for(int i=0;i<oldTermArr_L;i++)
+    if(expressionItemArr_L==0)
     {
-        newTermArr[i] = oldTermArr[i];
+        if(expressionItemArr!=NULL)
+        {
+            return false; //error: expressionItemArr should be NULL if length is 0
+        }
+        expressionItemArr = new ExpressionItem*[1];
+        expressionItemArr[1] = new ExpressionItem(termPtr);
+        expressionItemArr_L = 1;
+        alternator = 1;
+        return true;
     }
-    newTermArr[newTermArr_L-1] = nextTerm;
+    else
+    {
+        int newExpressionItemArr_L = expressionItemArr_L+1;
+        ExpressionItem** newExpressionItemArr = new ExpressionItem*[newExpressionItemArr_L];
+        int oldExpressionItemArr_L = expressionItemArr_L;
+        ExpressionItem** oldExpressionItemArr = expressionItemArr;
 
-    termArr_L = newTermArr_L;
-    termArr = newTermArr;
+        for(int i=0;i<oldExpressionItemArr_L;i++)
+        {
+            newExpressionItemArr[i] = oldExpressionItemArr[i];
+        }
+        newExpressionItemArr[newExpressionItemArr_L-1] = new ExpressionItem(termPtr); //push newest item to the end
 
-    delete[] oldTermArr;
-    alternator=1;
+        expressionItemArr_L = newExpressionItemArr_L;
+        expressionItemArr = newExpressionItemArr;
+
+        for(int i=0;i<oldExpressionItemArr_L;i++)
+        {
+            delete oldExpressionItemArr[i];
+        }
+        delete[] oldExpressionItemArr;
+
+        alternator = 1;
+        return true;
+    }
 }
-void Expression::pushOperation(Operation nextOperation)
+
+bool Expression::pushOperation(char operation)
 {
     if(alternator==0)
     {
-        throw; //error: this push should have been a term
+        return false; //error: an operation was expected but a term was given
     }
-    int newOpArr_L = opArr_L+1;
-    Operation* newOpArr = new Operation[newOpArr_L];
-    int oldOpArr_L = opArr_L;
-    Operation* oldOpArr = opArr;
-
-    for(int i=0;i<oldOpArr_L;i++)
+    if(operation!='+'||operation!='-'||operation!='*'||operation!='/'||operation!='^')
     {
-        newOpArr[i] = oldOpArr[i];
+        return false; //error: not a valid operation
     }
-    newOpArr[newOpArr_L-1] = nextOperation;
+    if(expressionItemArr_L==0)
+    {
+        if(expressionItemArr!=NULL)
+        {
+            return false; //error: expressionItemArr should be NULL if length is 0
+        }
+        expressionItemArr = new ExpressionItem*[1];
+        expressionItemArr[1] = new ExpressionItem(operation);
+        expressionItemArr_L = 1;
+        alternator = 0;
+        return true;
+    }
+    else
+    {
+        int newExpressionItemArr_L = expressionItemArr_L+1;
+        ExpressionItem** newExpressionItemArr = new ExpressionItem*[newExpressionItemArr_L];
+        int oldExpressionItemArr_L = expressionItemArr_L;
+        ExpressionItem** oldExpressionItemArr = expressionItemArr;
 
-    opArr_L = newOpArr_L;
-    opArr = newOpArr;
+        for(int i=0;i<oldExpressionItemArr_L;i++)
+        {
+            newExpressionItemArr[i] = oldExpressionItemArr[i];
+        }
+        newExpressionItemArr[newExpressionItemArr_L-1] = new ExpressionItem(operation); //push newest item to the end
 
-    delete[] oldOpArr;
-    alternator=0;
+        expressionItemArr_L = newExpressionItemArr_L;
+        expressionItemArr = newExpressionItemArr;
+
+        for(int i=0;i<oldExpressionItemArr_L;i++)
+        {
+            delete oldExpressionItemArr[i];
+        }
+        delete[] oldExpressionItemArr;
+
+        alternator = 0;
+        return true;
+    }
 }
-bool Expression::pop()
+
+bool Expression::pushParenthesis(char parenthesis)
 {
-    if(alternator==0) //implies: popping an operator
+    if(parenthesis=='(')
     {
-        if(opArr_L==0)
+        parenthesisStack++;
+        if(parenthesisStack<0)
         {
-            return false;
-        }
-        if(opArr_L==1)
-        {
-            opArr_L = 0;
-            delete[] opArr;
-            opArr = NULL;
-            return true;
-        }
-        else
-        {
-            int newOpArr_L = opArr_L-1;
-            Operation* newOpArr = new Operation[newOpArr_L];
-            Operation* oldOpArr = opArr;
-
-            for(int i=0;i<newOpArr_L;i++)
-            {
-                newOpArr[i] = oldOpArr[i];
-            }
-
-            opArr_L = newOpArr_L;
-            opArr = newOpArr;
-
-            delete[] oldOpArr;
-            alternator=1;
-            return true;
+            return false; //error: invalid parenthesis syntax
         }
     }
-    else //implies: popping a term
+    else if(parenthesis==')')
     {
-        if(termArr_L==0)
+        parenthesisStack--;
+        if(parenthesisStack<0)
         {
-            return false;
+            return false; //error: invalid parenthesis syntax
         }
-        if(termArr_L==1)
+    }
+    else
+    {
+        return false; //error: not a prenthesis input
+    }
+    if(expressionItemArr_L==0)
+    {
+        if(expressionItemArr!=NULL)
         {
-            termArr_L = 0;
-            delete[] termArr;
-            termArr = NULL;
-            return true;
+            return false; //error: expressionItemArr should be NULL if length is 0
         }
-        else
+        expressionItemArr = new ExpressionItem*[1];
+        expressionItemArr[1] = new ExpressionItem(parenthesis);
+        expressionItemArr_L = 1;
+        return true;
+    }
+    else
+    {
+        int newExpressionItemArr_L = expressionItemArr_L+1;
+        ExpressionItem** newExpressionItemArr = new ExpressionItem*[newExpressionItemArr_L];
+        int oldExpressionItemArr_L = expressionItemArr_L;
+        ExpressionItem** oldExpressionItemArr = expressionItemArr;
+
+        for(int i=0;i<oldExpressionItemArr_L;i++)
         {
-            int newTermArr_L = termArr_L-1;
-            Term* newTermArr = new Term[newTermArr_L];
-            Term* oldTermArr = termArr;
-
-            for(int i=0;i<newTermArr_L;i++)
-            {
-                newTermArr[i] = oldTermArr[i];
-            }
-
-            termArr_L = newTermArr_L;
-            termArr = newTermArr;
-
-            delete[] oldTermArr;
-            alternator=0;
-            return true;
+            newExpressionItemArr[i] = oldExpressionItemArr[i];
         }
+        newExpressionItemArr[newExpressionItemArr_L-1] = new ExpressionItem(parenthesis); //push newest item to the end
+
+        expressionItemArr_L = newExpressionItemArr_L;
+        expressionItemArr = newExpressionItemArr;
+
+        for(int i=0;i<oldExpressionItemArr_L;i++)
+        {
+            delete oldExpressionItemArr[i];
+        }
+        delete[] oldExpressionItemArr;
+        return true;
     }
 }
+
+bool Expression::popItem()
+{
+    if(expressionItemArr_L>=2)
+    {
+        int newExpressionItemArr_L = expressionItemArr_L-1;
+        ExpressionItem** newExpressionItemArr = new ExpressionItem*[newExpressionItemArr_L];
+        int oldExpressionItemArr_L = expressionItemArr_L;
+        ExpressionItem** oldExpressionItemArr = expressionItemArr;
+
+        for(int i=0;i<newExpressionItemArr_L;i++)
+        {
+            newExpressionItemArr[i] = oldExpressionItemArr[i];
+        }
+
+        expressionItemArr_L = newExpressionItemArr_L;
+        expressionItemArr = newExpressionItemArr;
+
+        for(int i=0;i<oldExpressionItemArr_L;i++)
+        {
+            delete oldExpressionItemArr[i];
+        }
+        delete[] oldExpressionItemArr;
+        return true;
+    }
+    else if(expressionItemArr_L==1)
+    {
+        delete expressionItemArr[0];
+        delete[] expressionItemArr;
+        expressionItemArr = NULL;
+        expressionItemArr_L = 0;
+        return true;
+    }
+    else
+    {
+        return false; //empty array
+    }
+}
+
 double Expression::getResult()
 {
-    return result;
+    if(resultCalculated==false)
+    {
+        resolve();
+        return result;
+    }
+    else
+    {
+        return result;
+    }
 }
+
 bool Expression::resolve()
 {
-    if(opArr_L-1!=termArr_L)
-    {
-        throw; //error: inbalanced number of operators and terms
-    }
-    while(termArr_L!=1)
-    {
-        if(opArr[0].isPEMDASLesser(opArr[1])) //if this operation is less important than the next then...
-        {
-            if(opArr[1].isPEMDASLesser(opArr[2])) //implicit: this would imply that opArr[i+2] is an exponential operator, so we can stop here
-            {
-                resolve_mergeTerms(2);
-            }
-            else
-            {
-                resolve_mergeTerms(1);
-            }
-        }
-        else
-        {
-            resolve_mergeTerms(0);
-        }
-    }
-    return termArr[0].getValue();
-}
-void Expression::resolve_mergeTerms(int index)
-{
-    int newTermArr_L = termArr_L-1;
-    Term* newTermArr = new Term[newTermArr_L];
-    int oldTermArr_L = termArr_L;
-    Term* oldTermArr = termArr;
-
-    int newOpArr_L = opArr_L-1;
-    Operation* newOpArr = new Operation[newOpArr_L];
-    int oldOpArr_L = opArr_L;
-    Operation* oldOpArr = opArr;
-
-    for(int i=0;i<index;i++)
-    {
-        newTermArr[i] = oldTermArr[i];
-    }
-    newTermArr[index] = resolve_mergeTerms_Calc(oldTermArr[index],oldOpArr[index],oldTermArr[index+1]);
-    for(int i=index+2;i-2<oldTermArr_L;i++)
-    {
-        newTermArr[i] = oldTermArr[i];
-    }
-
-    for(int i=0;i<index;i++)
-    {
-        newOpArr[i] = oldOpArr[i];
-    }
-    for(int i=index+1;i-1<oldOpArr_L;i++)
-    {
-        newOpArr[i] = oldOpArr[i];
-    }
-
-
-    opArr_L = newOpArr_L;
-    opArr = newOpArr;
-
-    termArr_L = newTermArr_L;
-    termArr = newTermArr;
-
-    delete[] oldOpArr;
-    delete[] oldTermArr;
-}
-Term Expression::resolve_mergeTerms_Calc(Term& term1, Operation& operation, Term& term2)
-{
-    double tempResult = 1;
-    if(operation.getOperationAsChar()=='+')
-    {
-        tempResult = term1.getValue()+term2.getValue();
-    }
-    else if(operation.getOperationAsChar()=='-')
-    {
-        tempResult = term1.getValue()-term2.getValue();
-    }
-    else if(operation.getOperationAsChar()=='*')
-    {
-        tempResult = term1.getValue()*term2.getValue();
-    }
-    else if(operation.getOperationAsChar()=='/')
-    {
-        tempResult = term1.getValue()/term2.getValue();
-    }
-    else if(operation.getOperationAsChar()=='^')
-    {
-        tempResult = pow(term1.getValue(),term2.getValue());
-    }
-    return Term(tempResult);
+    //Code to resolve expression and gain result as number
 }

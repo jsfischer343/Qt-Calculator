@@ -9,33 +9,28 @@
 class Calculator
 {
 private:
-    char* screenOutput;
-    Term mainInput;
-    int digitBuffer_L;
-    char* digitBuffer;
+    int inputBuffer_L;
+    char* inputBuffer;
+    int outputBuffer_L;
+    char* outputBuffer;
 public:
     Calculator();
     ~Calculator();
     //Get
-    char* getScreenOutput();
+    char* getInputBuffer();
+    char* getOutputBuffer();
     //Input
-    void inputDigitOrDecimal(char digit);
-    void inputOperator(char operation);
-    void inputParenthesis(bool parenthesis);
+    void appendToInputBuffer(char input);
     //Erase
-    void eraseLastInput();
-    void clearAll();
-    //Excution
-    bool executeCalculation();
+    void eraseFromInputBuffer(); //erase last value
+    void clearInputBuffer();
+    void clearOutputBuffer();
+    //Calculate
+    bool executeCalc();
 
 private:
-    double executeCalculation_recursive(Term& parentTerm, int start, int end);
-    double executeCalculation_calculate(Term& term);
-
-    //Digit Buffer
-    void pushAndFlushDigitBuffer();
-    //Validation
-    bool validSyntax();
+    double executeCalc_recursive(Term& parentTerm, int start, int end);
+    double executeCalc_calc(Term& term);
 };
 
 #endif // CALCULATOR_H

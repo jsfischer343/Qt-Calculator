@@ -26,7 +26,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         calculator.h calculator.cpp
         term.h term.cpp
         expression.h expression.cpp
-        operation.h operation.cpp
+
 
     )
 # Define target properties for Android with Qt 6 as:

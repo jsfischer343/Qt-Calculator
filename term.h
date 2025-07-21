@@ -48,7 +48,7 @@ public:
     Term();
     Term(double number);
     Term(int functionType, double* args, int args_L);
-    Term(int functionType, Term* termArgs, int termArgs_L); //For embedding functions in functions
+    //Term(int functionType, Term* termArgs, int termArgs_L); //For embedding functions in functions
     double getValue();
 };
 

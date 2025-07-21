@@ -90,6 +90,7 @@ Term::Term(int functionType, double* args, int args_L)
     FunctionHandler functionHandler = FunctionHandler(functionType, args, args_L);
     this->value = functionHandler.getResult();
 }
+/*
 Term::Term(int functionType, Term* termArgs, int termArgs_L)
 {
     int args_L = termArgs_L;
@@ -102,6 +103,7 @@ Term::Term(int functionType, Term* termArgs, int termArgs_L)
     this->value = functionHandler.getResult();
     delete[] args;
 }
+*/
 
 double Term::getValue()
 {
