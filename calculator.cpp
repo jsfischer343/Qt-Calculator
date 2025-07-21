@@ -50,9 +50,9 @@ void Calculator::clearOutputBuffer()
 {
     for(int i=0;i<200;i++)
     {
-        inputBuffer[i] = '\0';
+        outputBuffer[i] = '\0';
     }
-    inputBuffer_L=0;
+    outputBuffer_L=0;
 }
 
 bool Calculator::executeCalc()
