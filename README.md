@@ -4,5 +4,5 @@
 	Qt Creator is designed for C++ application development for both desktop and mobile applications. The goal of this calculator is to demonstrate fundamental application development concepts and creating GUI type applications.<br>
 	Goal Functions: arithmetic, exponents, logarithms, trig functions, and probability functions<br>
 	<br>
-	<i>Note: All code files were developed line by line or by using on of Qt creators many interfaces. No AI was used in the process of creating this project.</i>
+	<i>Note: All code files were developed line by line or by using one of Qt creators many interfaces. No AI was used to generate code.</i>
 </p>
