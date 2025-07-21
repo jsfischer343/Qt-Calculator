@@ -5,10 +5,10 @@
 /* Class Description: A single number or function contained within an expression.
 */
 //Predefined number of arguments for each function
-#define MODULUS_ARGNUM 2
-#define SIN_ARGNUM 1
-#define COS_ARGNUM 1
-#define TAN_ARGNUM 1
+#define TERM_ARGNUM_MODULUS 2
+#define TERM_ARGNUM_SIN 1
+#define TERM_ARGNUM_COS 1
+#define TERM_ARGNUM_TAN 1
 
 
 enum FunctionEnum

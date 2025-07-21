@@ -9,9 +9,12 @@ Term::FunctionHandler::FunctionHandler(int functionType, double* args, int args_
     bool valid = resolve(); //resolve function and store return value in valid
     if(!valid)
     {
-        throw; //invalid syntax, input, or other error in function
+        throw std::runtime_error("invalid function syntax"); //invalid syntax, input, or other error in function
     }
 }
+
+Term::FunctionHandler::~FunctionHandler()
+{}
 
 bool Term::FunctionHandler::resolve()
 {
@@ -45,19 +48,19 @@ int Term::FunctionHandler::getExpectedNumOfArgs(int functionType)
 {
     if(functionType==FunctionEnum_Modulus)
     {
-        return MODULUS_ARGNUM;
+        return TERM_ARGNUM_MODULUS;
     }
     else if(functionType==FunctionEnum_Sin)
     {
-        return SIN_ARGNUM;
+        return TERM_ARGNUM_SIN;
     }
     else if(functionType==FunctionEnum_Cos)
     {
-        return COS_ARGNUM;
+        return TERM_ARGNUM_COS;
     }
     else if(functionType==FunctionEnum_Tan)
     {
-        return TAN_ARGNUM;
+        return TERM_ARGNUM_TAN;
     }
     return 0;
 }

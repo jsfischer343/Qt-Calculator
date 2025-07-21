@@ -2,60 +2,182 @@
 
 Calculator::Calculator()
 {
-    inputBuffer_L = 0;
-    inputBuffer = new char[200];
+    calcBuffer_L = 0;
+    calcBuffer = new char[200];
     for(int i=0;i<200;i++)
     {
-        inputBuffer[i] = '\0';
+        calcBuffer[i] = '\0';
     }
-    outputBuffer_L = 0;
-    outputBuffer = new char[200];
-    for(int i=0;i<200;i++)
-    {
-        outputBuffer[i] = '\0';
-    }
+
+    //Buffer conversion variables
+    execCalc_numberPartBuffer_L = 0;
+    execCalc_numberPartBuffer = new double[100];
+    execCalc_decimalPartBuffer_L = 0;
+    execCalc_decimalPartBuffer = new double[100];
+    decimalPartActive = false;
+    mainExpression = new Expression();
 }
 Calculator::~Calculator()
 {
-    delete[] inputBuffer;
+    delete mainExpression;
+    delete[] calcBuffer;
 }
 
-char* Calculator::getInputBuffer()
+char* Calculator::getBuffer()
 {
-    return inputBuffer;
+    return calcBuffer;
 }
-char* Calculator::getOutputBuffer()
+void Calculator::appendToBuffer(char input)
 {
-    return outputBuffer;
+    calcBuffer[calcBuffer_L] = input;
+    calcBuffer_L++;
 }
-void Calculator::appendToInputBuffer(char input)
+void Calculator::eraseFromBuffer()
 {
-    inputBuffer[inputBuffer_L] = input;
-    inputBuffer_L++;
+    calcBuffer[calcBuffer_L-1] = '\0';
+    calcBuffer_L--;
 }
-void Calculator::eraseFromInputBuffer()
-{
-    inputBuffer[inputBuffer_L-1] = '\0';
-    inputBuffer_L--;
-}
-void Calculator::clearInputBuffer()
+void Calculator::clearBuffer()
 {
     for(int i=0;i<200;i++)
     {
-        inputBuffer[i] = '\0';
+        calcBuffer[i] = '\0';
     }
-    inputBuffer_L=0;
+    calcBuffer_L=0;
 }
-void Calculator::clearOutputBuffer()
+
+void Calculator::execCalc()
 {
+    for(int i=0;i<calcBuffer_L;i++)
+    {
+        if(calcBuffer[i]=='(')
+        {
+            execCalc_pushAndFlushNumBuf();
+            if(!mainExpression->pushParenthesis('('))
+            {
+                throw std::runtime_error("invalid syntax");
+            }
+        }
+        else if(calcBuffer[i]==')')
+        {
+            execCalc_pushAndFlushNumBuf();
+            if(!mainExpression->pushParenthesis(')'))
+            {
+                throw std::runtime_error("invalid syntax");
+            }
+        }
+        else if(calcBuffer[i]=='+')
+        {
+            execCalc_pushAndFlushNumBuf();
+            if(!mainExpression->pushOperation('+'))
+            {
+                throw std::runtime_error("invalid syntax");
+            }
+        }
+        else if(calcBuffer[i]=='-')
+        {
+            execCalc_pushAndFlushNumBuf();
+            if(!mainExpression->pushOperation('-'))
+            {
+                throw std::runtime_error("invalid syntax");
+            }
+        }
+        else if(calcBuffer[i]=='*')
+        {
+            execCalc_pushAndFlushNumBuf();
+            if(!mainExpression->pushOperation('*'))
+            {
+                throw std::runtime_error("invalid syntax");
+            }
+        }
+        else if(calcBuffer[i]=='/')
+        {
+            execCalc_pushAndFlushNumBuf();
+            if(!mainExpression->pushOperation('/'))
+            {
+                throw std::runtime_error("invalid syntax");
+            }
+        }
+        else if(calcBuffer[i]=='^')
+        {
+            execCalc_pushAndFlushNumBuf();
+            if(!mainExpression->pushOperation('^'))
+            {
+                throw std::runtime_error("invalid syntax");
+            }
+        }
+        else if(calcBuffer[i]=='0'||
+                   calcBuffer[i]=='1' ||
+                   calcBuffer[i]=='2' ||
+                   calcBuffer[i]=='3' ||
+                   calcBuffer[i]=='4' ||
+                   calcBuffer[i]=='5' ||
+                   calcBuffer[i]=='6' ||
+                   calcBuffer[i]=='7' ||
+                   calcBuffer[i]=='8' ||
+                   calcBuffer[i]=='9')
+        {
+            if(decimalPartActive)
+            {
+                execCalc_decimalPartBuffer[execCalc_decimalPartBuffer_L] = (double)atoi(&calcBuffer[i]);
+                execCalc_decimalPartBuffer_L++;
+            }
+            else
+            {
+                execCalc_numberPartBuffer[execCalc_numberPartBuffer_L] = (double)atoi(&calcBuffer[i]);
+                execCalc_numberPartBuffer_L++;
+            }
+        }
+        else if(calcBuffer[i]=='.')
+        {
+            if(decimalPartActive)
+            {
+                throw std::runtime_error("invalid syntax");
+            }
+            else
+            {
+                decimalPartActive = true;
+            }
+        }
+        else
+        {
+            //handle functions and embedded terms
+        }
+    }
+    execCalc_pushAndFlushNumBuf();
+    this->clearBuffer();
+    sprintf(calcBuffer,"%g",mainExpression->getResult());
     for(int i=0;i<200;i++)
     {
-        outputBuffer[i] = '\0';
+        if(calcBuffer[i]=='\0')
+        {
+            calcBuffer_L = i;
+            break;
+        }
     }
-    outputBuffer_L=0;
+    mainExpression->clear();
 }
 
-bool Calculator::executeCalc()
+void Calculator::execCalc_pushAndFlushNumBuf()
 {
-
+    if(execCalc_numberPartBuffer_L==0 && execCalc_decimalPartBuffer_L==0)
+    {
+        return;
+    }
+    double sum = 0;
+    for(int i=0;i<execCalc_numberPartBuffer_L;i++)
+    {
+        sum = sum+(execCalc_numberPartBuffer[i]*pow(10,execCalc_numberPartBuffer_L-i-1));
+    }
+    for(int i=0;i<execCalc_decimalPartBuffer_L;i++)
+    {
+        sum = sum+(execCalc_decimalPartBuffer[i]*pow(10,(i+1)*-1));
+    }
+    decimalPartActive = false;
+    execCalc_numberPartBuffer_L = 0;
+    execCalc_decimalPartBuffer_L = 0;
+    if(!mainExpression->pushTerm(new Term(sum)))
+    {
+        throw std::runtime_error("invalid syntax");
+    }
 }

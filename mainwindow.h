@@ -58,9 +58,19 @@ private slots:
 
     void on_pushButton_decimalPoint_clicked();
 
+    void on_pushButton_comma_clicked();
+
     void on_pushButton_parenOpen_clicked();
 
     void on_pushButton_parenClosed_clicked();
+
+    void on_pushButton_Mod_clicked();
+
+    void on_pushButton_Sin_clicked();
+
+    void on_pushButton_Cos_clicked();
+
+    void on_pushButton_Tan_clicked();
 
     void on_pushButton_enter_clicked();
 

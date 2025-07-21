@@ -4,33 +4,43 @@
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
-#include "term.h"
+#include "expression.h"
+
+#define CALCULATOR_SIGNATURE_MODULUS "mod("
+#define CALCULATOR_SIGNATURE_SIN "sin("
+#define CALCULATOR_SIGNATURE_COS "cos("
+#define CALCULATOR_SIGNATURE_TAN "tan("
 
 class Calculator
 {
 private:
-    int inputBuffer_L;
-    char* inputBuffer;
-    int outputBuffer_L;
-    char* outputBuffer;
+    int calcBuffer_L;
+    char* calcBuffer;
 public:
     Calculator();
     ~Calculator();
     //Get
-    char* getInputBuffer();
-    char* getOutputBuffer();
+    char* getBuffer();
     //Input
-    void appendToInputBuffer(char input);
+    void appendToBuffer(char input);
     //Erase
-    void eraseFromInputBuffer(); //erase last value
-    void clearInputBuffer();
-    void clearOutputBuffer();
+    void eraseFromBuffer(); //erase last value
+    void clearBuffer();
     //Calculate
-    bool executeCalc();
+    void execCalc();
 
 private:
-    double executeCalc_recursive(Term& parentTerm, int start, int end);
-    double executeCalc_calc(Term& term);
+
+    //Buffer conversion variables
+    int execCalc_numberPartBuffer_L;
+    double* execCalc_numberPartBuffer;
+    int execCalc_decimalPartBuffer_L;
+    double* execCalc_decimalPartBuffer;
+    bool decimalPartActive;
+    Expression* mainExpression;
+
+    void execCalc_pushAndFlushNumBuf();
+    void throw_InvalidSyntax();
 };
 
 #endif // CALCULATOR_H

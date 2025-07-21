@@ -1,7 +1,7 @@
 #ifndef EXPRESSION_H
 #define EXPRESSION_H
 #include "term.h"
-//(7+4)/(6-2)
+
 class Expression
 {
 public:
@@ -36,6 +36,7 @@ public:
     bool pushOperation(char operation);
     bool pushParenthesis(char parenthesis);
     bool popItem();
+    void clear();
     ExpressionItem* at(int index);
     int size();
     double getResult();

@@ -21,6 +21,9 @@ Expression::ExpressionItem::ExpressionItem(char newOpOrParenthesis)
         this->parenthesis = '\0';
     }
 }
+Expression::ExpressionItem::~ExpressionItem()
+{}
+
 bool Expression::ExpressionItem::isTerm()
 {
     if(termPtr!=NULL)
@@ -91,7 +94,7 @@ bool Expression::pushTerm(Term* termPtr)
             return false; //error: expressionItemArr should be NULL if length is 0
         }
         expressionItemArr = new ExpressionItem*[1];
-        expressionItemArr[1] = new ExpressionItem(termPtr);
+        expressionItemArr[0] = new ExpressionItem(termPtr);
         expressionItemArr_L = 1;
         alternator = 1;
         //clear result status
@@ -117,10 +120,6 @@ bool Expression::pushTerm(Term* termPtr)
         expressionItemArr_L = newExpressionItemArr_L;
         expressionItemArr = newExpressionItemArr;
 
-        for(int i=0;i<oldExpressionItemArr_L;i++)
-        {
-            delete oldExpressionItemArr[i];
-        }
         delete[] oldExpressionItemArr;
 
         alternator = 1;
@@ -134,7 +133,7 @@ bool Expression::pushOperation(char operation)
     {
         return false; //error: an operation was expected but a term was given
     }
-    if(operation!='+'||operation!='-'||operation!='*'||operation!='/'||operation!='^')
+    if(operation!='+' && operation!='-' && operation!='*' && operation!='/' && operation!='^')
     {
         return false; //error: not a valid operation
     }
@@ -145,7 +144,7 @@ bool Expression::pushOperation(char operation)
             return false; //error: expressionItemArr should be NULL if length is 0
         }
         expressionItemArr = new ExpressionItem*[1];
-        expressionItemArr[1] = new ExpressionItem(operation);
+        expressionItemArr[0] = new ExpressionItem(operation);
         expressionItemArr_L = 1;
         alternator = 0;
         //clear result status
@@ -171,10 +170,6 @@ bool Expression::pushOperation(char operation)
         expressionItemArr_L = newExpressionItemArr_L;
         expressionItemArr = newExpressionItemArr;
 
-        for(int i=0;i<oldExpressionItemArr_L;i++)
-        {
-            delete oldExpressionItemArr[i];
-        }
         delete[] oldExpressionItemArr;
 
         alternator = 0;
@@ -204,6 +199,10 @@ bool Expression::pushParenthesis(char parenthesis)
     {
         return false; //error: not a prenthesis input
     }
+    if(alternator==1)
+    {
+        return false; //error: expecting operator
+    }
     if(expressionItemArr_L==0)
     {
         if(expressionItemArr!=NULL)
@@ -211,7 +210,7 @@ bool Expression::pushParenthesis(char parenthesis)
             return false; //error: expressionItemArr should be NULL if length is 0
         }
         expressionItemArr = new ExpressionItem*[1];
-        expressionItemArr[1] = new ExpressionItem(parenthesis);
+        expressionItemArr[0] = new ExpressionItem(parenthesis);
         expressionItemArr_L = 1;
         //clear result status
         resultCalculated = false;
@@ -236,10 +235,6 @@ bool Expression::pushParenthesis(char parenthesis)
         expressionItemArr_L = newExpressionItemArr_L;
         expressionItemArr = newExpressionItemArr;
 
-        for(int i=0;i<oldExpressionItemArr_L;i++)
-        {
-            delete oldExpressionItemArr[i];
-        }
         delete[] oldExpressionItemArr;
         return true;
     }
@@ -274,10 +269,7 @@ bool Expression::popItem()
         expressionItemArr_L = newExpressionItemArr_L;
         expressionItemArr = newExpressionItemArr;
 
-        for(int i=0;i<oldExpressionItemArr_L;i++)
-        {
-            delete oldExpressionItemArr[i];
-        }
+        delete oldExpressionItemArr[oldExpressionItemArr_L-1];
         delete[] oldExpressionItemArr;
         return true;
     }
@@ -297,6 +289,21 @@ bool Expression::popItem()
     {
         return false; //empty array
     }
+}
+
+void Expression::clear()
+{
+    for(int i=0;i<expressionItemArr_L;i++)
+    {
+        delete expressionItemArr[i];
+    }
+    delete[] expressionItemArr;
+    expressionItemArr = NULL;
+    expressionItemArr_L = 0;
+    alternator = 0;
+    resultCalculated = false;
+    result = 0;
+    parenthesisStack = 0;
 }
 
 Expression::ExpressionItem* Expression::at(int index)
@@ -319,7 +326,7 @@ double Expression::getResult()
         }
         else
         {
-            throw;
+            throw std::runtime_error("Result does not exist");
         }
     }
     else
@@ -330,7 +337,7 @@ double Expression::getResult()
 
 bool Expression::resolve()
 {
-    resolve_recursive(this);
+    result = resolve_recursive(this);
     return true;
 }
 
@@ -352,17 +359,20 @@ double Expression::resolve_recursive(Expression* expressionToResolve)
     double tempRecursiveResult;
     for(int i=0;i<expressionToResolve->expressionItemArr_L;i++)
     {
-        if(expressionToResolve->expressionItemArr[i]->getParenthesis()=='(' && !startParFound)
+        if(expressionToResolve->expressionItemArr[i]->isParenthesis())
         {
-            startPar = i;
-            startParFound = true;
+            if(expressionToResolve->expressionItemArr[i]->getParenthesis()=='(' && !startParFound)
+            {
+                startPar = i;
+                startParFound = true;
+            }
+            else if(expressionToResolve->expressionItemArr[i]->getParenthesis()==')' && !endParFound)
+            {
+                endPar = i;
+                endParFound = true;
+            }
         }
-        else if(expressionToResolve->expressionItemArr[i]->getParenthesis()==')' && !endParFound)
-        {
-            endPar = i;
-            endParFound = true;
-        }
-        else if(startParFound && endParFound)
+        if(startParFound && endParFound)
         {
             startParFound = false;
             endParFound = false;
@@ -403,7 +413,7 @@ void Expression::resolve_merge(Expression* expressionToMerge, int start, int end
 {
     if(start>expressionToMerge->expressionItemArr_L || end>expressionToMerge->expressionItemArr_L || end<=start)
     {
-        throw; //error: invalid indexes
+        throw std::runtime_error("Invalid indexes referenced in merge"); //error: invalid indexes
     }
     int mergeSize = end-start;
     int newExpressionItemArr_L = expressionToMerge->expressionItemArr_L-mergeSize;
@@ -424,7 +434,7 @@ void Expression::resolve_merge(Expression* expressionToMerge, int start, int end
     expressionToMerge->expressionItemArr_L = newExpressionItemArr_L;
     expressionToMerge->expressionItemArr = newExpressionItemArr;
 
-    for(int i=0;i<oldExpressionItemArr_L;i++)
+    for(int i=start;i<=end;i++)
     {
         delete oldExpressionItemArr[i];
     }
@@ -435,26 +445,37 @@ double Expression::resolve_calcAndMerge(Expression* expressionToCalcAndMerge, in
 {
     if(index>expressionToCalcAndMerge->expressionItemArr_L-1)
     {
-        throw; //error: out of range
+        throw std::runtime_error("out of range occured in merge"); //error: out of range
     }
     if(expressionToCalcAndMerge->expressionItemArr[index]->isTerm()==false)
     {
-        throw; //error: invalid index (can't calc and merge on an operation index)
+        throw std::runtime_error("merge attempted on operation index"); //error: invalid index (can't calc and merge on an operation index)
+    }
+    if(expressionToCalcAndMerge->expressionItemArr_L==2)
+    {
+        throw  std::runtime_error("a very strange error has occured"); //error: ???
+    }
+    if(expressionToCalcAndMerge->expressionItemArr_L==1)
+    {
+        return expressionToCalcAndMerge->expressionItemArr[index]->getTerm()->getValue();
     }
     char thisOperation = expressionToCalcAndMerge->expressionItemArr[index+1]->getOperation();
     char nextOperation = '\0';
     char nextNextOperation = '\0';
     double val1 = expressionToCalcAndMerge->expressionItemArr[index]->getTerm()->getValue();
     double val2 = expressionToCalcAndMerge->expressionItemArr[index+2]->getTerm()->getValue();
-    double val3 = expressionToCalcAndMerge->expressionItemArr[index+4]->getTerm()->getValue();
-    double val4 = expressionToCalcAndMerge->expressionItemArr[index+6]->getTerm()->getValue();
+    double val3 = 0; //expressionToCalcAndMerge->expressionItemArr[index+4]->getTerm()->getValue();
+    double val4 = 0; //expressionToCalcAndMerge->expressionItemArr[index+6]->getTerm()->getValue();
     double tempResult = -1;
+
     if(index+3<expressionToCalcAndMerge->expressionItemArr_L-1)
     {
         nextOperation = expressionToCalcAndMerge->expressionItemArr[index+3]->getOperation();
+        val3 = expressionToCalcAndMerge->expressionItemArr[index+4]->getTerm()->getValue();
         if(index+5<expressionToCalcAndMerge->expressionItemArr_L-1)
         {
             nextNextOperation = expressionToCalcAndMerge->expressionItemArr[index+5]->getOperation();
+            val4 = expressionToCalcAndMerge->expressionItemArr[index+6]->getTerm()->getValue();
         }
     }
 
@@ -499,7 +520,7 @@ double Expression::resolve_calcAndMerge(Expression* expressionToCalcAndMerge, in
         }
         else
         {
-            throw;
+            throw std::runtime_error("unknown operation was attempted");
         }
     }
     else if(nextNextOperation=='\0')
@@ -576,7 +597,7 @@ double Expression::resolve_calcAndMerge(Expression* expressionToCalcAndMerge, in
         }
         else
         {
-            throw;
+            throw std::runtime_error("unknown operation was attempted");
         }
     }
     else
@@ -662,7 +683,7 @@ double Expression::resolve_calcAndMerge(Expression* expressionToCalcAndMerge, in
         }
         else
         {
-            throw;
+            throw std::runtime_error("unknown operation was attempted");
         }
     }
 }
@@ -691,9 +712,9 @@ void Expression::resolve_calcAndMerge_merge(Expression* expressionToMerge, int i
     expressionToMerge->expressionItemArr_L = newExpressionItemArr_L;
     expressionToMerge->expressionItemArr = newExpressionItemArr;
 
-    for(int i=0;i<oldExpressionItemArr_L;i++)
-    {
-        delete oldExpressionItemArr[i];
-    }
+
+    delete oldExpressionItemArr[index];
+    delete oldExpressionItemArr[index+1];
+    delete oldExpressionItemArr[index+2];
     delete[] oldExpressionItemArr;
 }
