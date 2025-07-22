@@ -68,6 +68,7 @@ Expression::Expression()
     resultCalculated = false;
     alternator = 0;
     parenthesisStack = 0;
+    error = 0;
 }
 Expression::~Expression()
 {
@@ -181,27 +182,27 @@ bool Expression::pushParenthesis(char parenthesis)
 {
     if(parenthesis=='(')
     {
-        parenthesisStack++;
-        if(parenthesisStack<0)
+        if(alternator==1)
         {
-            return false; //error: invalid parenthesis syntax
+            return false; //error: expecting operator first
         }
+        parenthesisStack++;
     }
     else if(parenthesis==')')
     {
-        parenthesisStack--;
-        if(parenthesisStack<0)
+        if(alternator==0)
+        {
+            return false; //error: expecting term first
+        }
+        if(parenthesisStack==0)
         {
             return false; //error: invalid parenthesis syntax
         }
+        parenthesisStack--;
     }
     else
     {
         return false; //error: not a prenthesis input
-    }
-    if(alternator==1)
-    {
-        return false; //error: expecting operator
     }
     if(expressionItemArr_L==0)
     {
@@ -293,17 +294,21 @@ bool Expression::popItem()
 
 void Expression::clear()
 {
-    for(int i=0;i<expressionItemArr_L;i++)
+    if(expressionItemArr!=NULL)
     {
-        delete expressionItemArr[i];
+        for(int i=0;i<expressionItemArr_L;i++)
+        {
+            delete expressionItemArr[i];
+        }
+        delete[] expressionItemArr;
     }
-    delete[] expressionItemArr;
     expressionItemArr = NULL;
     expressionItemArr_L = 0;
     alternator = 0;
     resultCalculated = false;
     result = 0;
     parenthesisStack = 0;
+    error = 0;
 }
 
 Expression::ExpressionItem* Expression::at(int index)
@@ -322,11 +327,15 @@ double Expression::getResult()
     {
         if(resolve())
         {
+            if(error!=0)
+            {
+                this->throwError();
+            }
             return result;
         }
         else
         {
-            throw std::runtime_error("Result does not exist");
+            this->throwError();
         }
     }
     else
@@ -345,115 +354,126 @@ double Expression::resolve_recursive(Expression* expressionToResolve)
 {
     if(expressionToResolve->parenthesisStack!=0)
     {
-        return false; //error: incorrect parenthesis syntax
+        error = 1071; //error: invalid parenthesis syntax
+        return 1;
     }
-    if(expressionToResolve->alternator==0)
+    else if(expressionToResolve->alternator==0)
     {
-        return false; //error: expression ends in operator
+        error = 1072; //error: expression ends in operator
+        return 1;
     }
-    //Resolve and merge all parenthesis using recursion
-    bool startParFound = false;
-    int startPar;
-    bool endParFound = false;
-    int endPar;
-    double tempRecursiveResult;
-    for(int i=0;i<expressionToResolve->expressionItemArr_L;i++)
+    else
     {
-        if(expressionToResolve->expressionItemArr[i]->isParenthesis())
+        //Resolve and merge all parenthesis using recursion
+        bool startParFound = false;
+        int startPar;
+        bool endParFound = false;
+        int endPar;
+        double tempRecursiveResult;
+        for(int i=0;i<expressionToResolve->expressionItemArr_L;i++)
         {
-            if(expressionToResolve->expressionItemArr[i]->getParenthesis()=='(' && !startParFound)
+            if(expressionToResolve->expressionItemArr[i]->isParenthesis())
             {
-                startPar = i;
-                startParFound = true;
+                if(expressionToResolve->expressionItemArr[i]->getParenthesis()=='(' && !startParFound)
+                {
+                    startPar = i;
+                    startParFound = true;
+                }
+                else if(expressionToResolve->expressionItemArr[i]->getParenthesis()==')' && !endParFound)
+                {
+                    endPar = i;
+                    endParFound = true;
+                }
             }
-            else if(expressionToResolve->expressionItemArr[i]->getParenthesis()==')' && !endParFound)
+            if(startParFound && endParFound)
             {
-                endPar = i;
-                endParFound = true;
+                startParFound = false;
+                endParFound = false;
+                //Create subexpression from current expression
+                Expression* subExpression = new Expression();
+                for(int j=startPar+1;j<(endPar-startPar)+startPar;j++) //doesn't include the outer parenthesis themselves
+                {
+                    if(expressionToResolve->at(j)->isTerm())
+                    {
+                        subExpression->pushTerm(expressionToResolve->at(j)->getTerm());
+                    }
+                    else if(expressionToResolve->at(j)->isOperation())
+                    {
+                        subExpression->pushOperation(expressionToResolve->at(j)->getOperation());
+                    }
+                    else if(expressionToResolve->at(j)->isParenthesis())
+                    {
+                        subExpression->pushParenthesis(expressionToResolve->at(j)->getParenthesis());
+                    }
+                }
+                //Feed that subexpression into recursive resolve
+                // &
+                //Merge subexpression range down to single double value provided by recursive resolve
+                resolve_merge(expressionToResolve,startPar,endPar,resolve_recursive(subExpression));
+                i=startPar;
+                delete subExpression;
             }
         }
-        if(startParFound && endParFound)
+        //Resolve all operations down to single term which acts as final answer
+        while(expressionToResolve->expressionItemArr_L!=1)
         {
-            startParFound = false;
-            endParFound = false;
-            //Create subexpression from current expression
-            Expression* subExpression = new Expression();
-            for(int i=1;i<(endPar-startPar);i++) //doesn't include the outer parenthesis themselves
-            {
-                if(expressionToResolve->at(i)->isTerm())
-                {
-                    subExpression->pushTerm(expressionToResolve->at(i)->getTerm());
-                }
-                else if(expressionToResolve->at(i)->isOperation())
-                {
-                    subExpression->pushOperation(expressionToResolve->at(i)->getOperation());
-                }
-                else if(expressionToResolve->at(i)->isParenthesis())
-                {
-                    subExpression->pushParenthesis(expressionToResolve->at(i)->getParenthesis());
-                }
-            }
-            //Feed that subexpression into recursive resolve
-            // &
-            //Merge subexpression range down to single double value provided by recursive resolve
-            resolve_merge(expressionToResolve,startPar,endPar,resolve_recursive(subExpression));
-            i=startPar;
-            delete subExpression;
+            resolve_calcAndMerge(expressionToResolve,0);
         }
+        return expressionToResolve->expressionItemArr[0]->getTerm()->getValue();
     }
-    //Resolve all operations down to single term which acts as final answer
-    while(expressionToResolve->expressionItemArr_L!=1)
-    {
-        resolve_calcAndMerge(expressionToResolve,0);
-    }
-    return expressionToResolve->expressionItemArr[0]->getTerm()->getValue();
 }
 
 void Expression::resolve_merge(Expression* expressionToMerge, int start, int end, double value)
 {
     if(start>expressionToMerge->expressionItemArr_L || end>expressionToMerge->expressionItemArr_L || end<=start)
     {
-        throw std::runtime_error("Invalid indexes referenced in merge"); //error: invalid indexes
+        error = 1023; //error: invalid indexes
     }
-    int mergeSize = end-start;
-    int newExpressionItemArr_L = expressionToMerge->expressionItemArr_L-mergeSize;
-    ExpressionItem** newExpressionItemArr = new ExpressionItem*[newExpressionItemArr_L];
-    int oldExpressionItemArr_L = expressionToMerge->expressionItemArr_L;
-    ExpressionItem** oldExpressionItemArr = expressionToMerge->expressionItemArr;
-
-    for(int i=0;i<start;i++)
+    else
     {
-        newExpressionItemArr[i] = oldExpressionItemArr[i];
-    }
-    newExpressionItemArr[start] = new ExpressionItem(new Term(value));
-    for(int i=start+mergeSize+1;i<oldExpressionItemArr_L && i-mergeSize<newExpressionItemArr_L;i++)
-    {
-        newExpressionItemArr[i-mergeSize] = oldExpressionItemArr[i];
-    }
+        int mergeSize = end-start;
+        int newExpressionItemArr_L = expressionToMerge->expressionItemArr_L-mergeSize;
+        ExpressionItem** newExpressionItemArr = new ExpressionItem*[newExpressionItemArr_L];
+        int oldExpressionItemArr_L = expressionToMerge->expressionItemArr_L;
+        ExpressionItem** oldExpressionItemArr = expressionToMerge->expressionItemArr;
 
-    expressionToMerge->expressionItemArr_L = newExpressionItemArr_L;
-    expressionToMerge->expressionItemArr = newExpressionItemArr;
+        for(int i=0;i<start;i++)
+        {
+            newExpressionItemArr[i] = oldExpressionItemArr[i];
+        }
+        newExpressionItemArr[start] = new ExpressionItem(new Term(value));
+        for(int i=start+mergeSize+1;i<oldExpressionItemArr_L && i-mergeSize<newExpressionItemArr_L;i++)
+        {
+            newExpressionItemArr[i-mergeSize] = oldExpressionItemArr[i];
+        }
 
-    for(int i=start;i<=end;i++)
-    {
-        delete oldExpressionItemArr[i];
+        expressionToMerge->expressionItemArr_L = newExpressionItemArr_L;
+        expressionToMerge->expressionItemArr = newExpressionItemArr;
+
+        for(int i=start;i<=end;i++)
+        {
+            delete oldExpressionItemArr[i];
+        }
+        delete[] oldExpressionItemArr;
     }
-    delete[] oldExpressionItemArr;
 }
 
 double Expression::resolve_calcAndMerge(Expression* expressionToCalcAndMerge, int index)
 {
     if(index>expressionToCalcAndMerge->expressionItemArr_L-1)
     {
-        throw std::runtime_error("out of range occured in merge"); //error: out of range
+        error = 1030; //error: out of range
+        return 1;
     }
     if(expressionToCalcAndMerge->expressionItemArr[index]->isTerm()==false)
     {
-        throw std::runtime_error("merge attempted on operation index"); //error: invalid index (can't calc and merge on an operation index)
+        error = 1031; //error: invalid index (can't calc and merge on an operation index)
+        return 1;
     }
     if(expressionToCalcAndMerge->expressionItemArr_L==2)
     {
-        throw  std::runtime_error("a very strange error has occured"); //error: ???
+        error = 1032; //error: ???
+        return 1;
     }
     if(expressionToCalcAndMerge->expressionItemArr_L==1)
     {
@@ -520,7 +540,8 @@ double Expression::resolve_calcAndMerge(Expression* expressionToCalcAndMerge, in
         }
         else
         {
-            throw std::runtime_error("unknown operation was attempted");
+            error = 1040;
+            return 1;
         }
     }
     else if(nextNextOperation=='\0')
@@ -597,7 +618,8 @@ double Expression::resolve_calcAndMerge(Expression* expressionToCalcAndMerge, in
         }
         else
         {
-            throw std::runtime_error("unknown operation was attempted");
+            error = 1040;
+            return 1;
         }
     }
     else
@@ -683,7 +705,8 @@ double Expression::resolve_calcAndMerge(Expression* expressionToCalcAndMerge, in
         }
         else
         {
-            throw std::runtime_error("unknown operation was attempted");
+            error = 1040;
+            return 1;
         }
     }
 }
@@ -717,4 +740,11 @@ void Expression::resolve_calcAndMerge_merge(Expression* expressionToMerge, int i
     delete oldExpressionItemArr[index+1];
     delete oldExpressionItemArr[index+2];
     delete[] oldExpressionItemArr;
+}
+
+void Expression::throwError()
+{
+    int errorTemp = error;
+    this->clear();
+    throw errorTemp;
 }

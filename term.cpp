@@ -9,7 +9,7 @@ Term::FunctionHandler::FunctionHandler(int functionType, double* args, int args_
     bool valid = resolve(); //resolve function and store return value in valid
     if(!valid)
     {
-        throw std::runtime_error("invalid function syntax"); //invalid syntax, input, or other error in function
+        throw 1062; //invalid syntax, input, or other error in function
     }
 }
 

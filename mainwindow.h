@@ -79,9 +79,9 @@ private slots:
     void on_pushButton_clr_clicked();
 
 private:
-    void popUp_InvalidSyntax();
+    void errorHandler(int error);
 
     Ui::MainWindow *ui;
-    Calculator mainCalculator = Calculator();
+    Calculator* mainCalculator;
 };
 #endif // MAINWINDOW_H

@@ -44,10 +44,12 @@ void Calculator::clearBuffer()
         calcBuffer[i] = '\0';
     }
     calcBuffer_L=0;
+    mainExpression->clear();
 }
 
 void Calculator::execCalc()
 {
+    mainExpression->clear();
     for(int i=0;i<calcBuffer_L;i++)
     {
         if(calcBuffer[i]=='(')
@@ -55,7 +57,8 @@ void Calculator::execCalc()
             execCalc_pushAndFlushNumBuf();
             if(!mainExpression->pushParenthesis('('))
             {
-                throw std::runtime_error("invalid syntax");
+                mainExpression->clear();
+                throw 1051;
             }
         }
         else if(calcBuffer[i]==')')
@@ -63,7 +66,8 @@ void Calculator::execCalc()
             execCalc_pushAndFlushNumBuf();
             if(!mainExpression->pushParenthesis(')'))
             {
-                throw std::runtime_error("invalid syntax");
+                mainExpression->clear();
+                throw 1051;
             }
         }
         else if(calcBuffer[i]=='+')
@@ -71,7 +75,8 @@ void Calculator::execCalc()
             execCalc_pushAndFlushNumBuf();
             if(!mainExpression->pushOperation('+'))
             {
-                throw std::runtime_error("invalid syntax");
+                mainExpression->clear();
+                throw 1051;
             }
         }
         else if(calcBuffer[i]=='-')
@@ -79,7 +84,8 @@ void Calculator::execCalc()
             execCalc_pushAndFlushNumBuf();
             if(!mainExpression->pushOperation('-'))
             {
-                throw std::runtime_error("invalid syntax");
+                mainExpression->clear();
+                throw 1051;
             }
         }
         else if(calcBuffer[i]=='*')
@@ -87,7 +93,8 @@ void Calculator::execCalc()
             execCalc_pushAndFlushNumBuf();
             if(!mainExpression->pushOperation('*'))
             {
-                throw std::runtime_error("invalid syntax");
+                mainExpression->clear();
+                throw 1051;
             }
         }
         else if(calcBuffer[i]=='/')
@@ -95,7 +102,8 @@ void Calculator::execCalc()
             execCalc_pushAndFlushNumBuf();
             if(!mainExpression->pushOperation('/'))
             {
-                throw std::runtime_error("invalid syntax");
+                mainExpression->clear();
+                throw 1051;
             }
         }
         else if(calcBuffer[i]=='^')
@@ -103,7 +111,8 @@ void Calculator::execCalc()
             execCalc_pushAndFlushNumBuf();
             if(!mainExpression->pushOperation('^'))
             {
-                throw std::runtime_error("invalid syntax");
+                mainExpression->clear();
+                throw 1051;
             }
         }
         else if(calcBuffer[i]=='0'||
@@ -119,12 +128,12 @@ void Calculator::execCalc()
         {
             if(decimalPartActive)
             {
-                execCalc_decimalPartBuffer[execCalc_decimalPartBuffer_L] = (double)atoi(&calcBuffer[i]);
+                execCalc_decimalPartBuffer[execCalc_decimalPartBuffer_L] = (double)((int)calcBuffer[i]-48);
                 execCalc_decimalPartBuffer_L++;
             }
             else
             {
-                execCalc_numberPartBuffer[execCalc_numberPartBuffer_L] = (double)atoi(&calcBuffer[i]);
+                execCalc_numberPartBuffer[execCalc_numberPartBuffer_L] = (double)((int)calcBuffer[i]-48);
                 execCalc_numberPartBuffer_L++;
             }
         }
@@ -132,7 +141,8 @@ void Calculator::execCalc()
         {
             if(decimalPartActive)
             {
-                throw std::runtime_error("invalid syntax");
+                mainExpression->clear();
+                throw 1051;
             }
             else
             {
@@ -145,7 +155,6 @@ void Calculator::execCalc()
         }
     }
     execCalc_pushAndFlushNumBuf();
-    this->clearBuffer();
     sprintf(calcBuffer,"%g",mainExpression->getResult());
     for(int i=0;i<200;i++)
     {
@@ -155,7 +164,6 @@ void Calculator::execCalc()
             break;
         }
     }
-    mainExpression->clear();
 }
 
 void Calculator::execCalc_pushAndFlushNumBuf()
@@ -178,6 +186,7 @@ void Calculator::execCalc_pushAndFlushNumBuf()
     execCalc_decimalPartBuffer_L = 0;
     if(!mainExpression->pushTerm(new Term(sum)))
     {
-        throw std::runtime_error("invalid syntax");
+        mainExpression->clear();
+        throw 1051;
     }
 }
