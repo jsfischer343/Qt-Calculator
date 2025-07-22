@@ -26,6 +26,7 @@ public:
     //Erase
     void eraseFromBuffer(); //erase last value
     void clearBuffer();
+    void clearAll();
     //Calculate
     void execCalc();
 

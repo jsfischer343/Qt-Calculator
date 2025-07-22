@@ -44,6 +44,14 @@ void Calculator::clearBuffer()
         calcBuffer[i] = '\0';
     }
     calcBuffer_L=0;
+}
+void Calculator::clearAll()
+{
+    for(int i=0;i<200;i++)
+    {
+        calcBuffer[i] = '\0';
+    }
+    calcBuffer_L=0;
     mainExpression->clear();
 }
 
@@ -155,6 +163,7 @@ void Calculator::execCalc()
         }
     }
     execCalc_pushAndFlushNumBuf();
+    this->clearBuffer();
     sprintf(calcBuffer,"%g",mainExpression->getResult());
     for(int i=0;i<200;i++)
     {

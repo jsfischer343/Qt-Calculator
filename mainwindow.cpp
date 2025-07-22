@@ -261,7 +261,7 @@ void MainWindow::on_pushButton_backspace_clicked()
 
 void MainWindow::on_pushButton_clr_clicked()
 {
-    mainCalculator->clearBuffer();
+    mainCalculator->clearAll();
     ui->outputPanel->setText(QString::fromUtf8(mainCalculator->getBuffer()));
 }
 
@@ -280,7 +280,7 @@ void MainWindow::errorHandler(int errorNum)
         notifyBox.setWindowTitle("Error");
         notifyBox.setText("Unclosed parenthesis(es)");
         notifyBox.exec();
-        mainCalculator->clearBuffer();
+        mainCalculator->clearAll();
         mainCalculator->~Calculator();
         mainCalculator = new Calculator();
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator->getBuffer()));
@@ -291,7 +291,7 @@ void MainWindow::errorHandler(int errorNum)
         notifyBox.setWindowTitle("Error");
         notifyBox.setText(QString::number(errorNum));
         notifyBox.exec();
-        mainCalculator->clearBuffer();
+        mainCalculator->clearAll();
         mainCalculator->~Calculator();
         mainCalculator = new Calculator();
         ui->outputPanel->setText(QString::fromUtf8(mainCalculator->getBuffer()));
