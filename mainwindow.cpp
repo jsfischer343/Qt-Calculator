@@ -213,11 +213,6 @@ void MainWindow::on_pushButton_parenClosed_clicked()
     ui->outputPanel->setText(QString::fromUtf8(mainCalculator->getBuffer()));
 }
 
-void MainWindow::on_pushButton_comma_clicked()
-{
-
-}
-
 void MainWindow::on_pushButton_enter_clicked()
 {
     try

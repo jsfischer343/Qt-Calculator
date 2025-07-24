@@ -370,19 +370,29 @@ double Expression::resolve_recursive(Expression* expressionToResolve)
         bool endParFound = false;
         int endPar;
         double tempRecursiveResult;
+        int tempParenthesisStack = 0;
         for(int i=0;i<expressionToResolve->expressionItemArr_L;i++)
         {
             if(expressionToResolve->expressionItemArr[i]->isParenthesis())
             {
-                if(expressionToResolve->expressionItemArr[i]->getParenthesis()=='(' && !startParFound)
+                if(expressionToResolve->expressionItemArr[i]->getParenthesis()=='(')
                 {
-                    startPar = i;
-                    startParFound = true;
+                    if(!startParFound && tempParenthesisStack==0)
+                    {
+                        startPar = i;
+                        startParFound = true;
+                    }
+                    tempParenthesisStack++;
                 }
-                else if(expressionToResolve->expressionItemArr[i]->getParenthesis()==')' && !endParFound)
+                else if(expressionToResolve->expressionItemArr[i]->getParenthesis()==')')
                 {
-                    endPar = i;
-                    endParFound = true;
+                    tempParenthesisStack--;
+                    if(!endParFound && tempParenthesisStack==0)
+                    {
+                        endPar = i;
+                        endParFound = true;
+                    }
+
                 }
             }
             if(startParFound && endParFound)
@@ -412,6 +422,10 @@ double Expression::resolve_recursive(Expression* expressionToResolve)
                 resolve_merge(expressionToResolve,startPar,endPar,resolve_recursive(subExpression));
                 i=startPar;
                 delete subExpression;
+            }
+            if(tempParenthesisStack<0)
+            {
+                error = 1901;
             }
         }
         //Resolve all operations down to single term which acts as final answer
