@@ -213,30 +213,6 @@ void MainWindow::on_pushButton_parenClosed_clicked()
     ui->outputPanel->setText(QString::fromUtf8(mainCalculator->getBuffer()));
 }
 
-void MainWindow::on_pushButton_Mod_clicked()
-{
-
-}
-
-
-void MainWindow::on_pushButton_Sin_clicked()
-{
-
-}
-
-
-void MainWindow::on_pushButton_Cos_clicked()
-{
-
-}
-
-
-void MainWindow::on_pushButton_Tan_clicked()
-{
-
-}
-
-
 void MainWindow::on_pushButton_comma_clicked()
 {
 
